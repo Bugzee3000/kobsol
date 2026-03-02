@@ -603,7 +603,7 @@ function TeamDetail({team,onBack,onUpdate,t,lang}) {
         })}
       </tbody></table></div>}
       {tab==='lates'&&<LatePaymentsPanel team={team} onUpdate={onUpdate} t={t} lang={lang}/>}
-      {tab==='invites'&&<InvitePanel team={team} t={t} onUpdate={onUpdate}/>}
+     {tab === 'invites' && <InvitePanel team={team} t={t} user={user} />}
     </div>
   );
 }
