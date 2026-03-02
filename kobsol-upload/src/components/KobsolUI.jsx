@@ -984,27 +984,52 @@ function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
     </div>
   );
 }
-function InvitePanel({ team, t, onUpdate }) {
+function InvitePanel({ team, t, user }) {
   const [email, setEmail] = useState('');
+  const [role, setRole] = useState('member');
   const [error, setError] = useState('');
-  const [toast, setToast] = useState('');
-  const invites = team.invites || [];
+  const [loading, setLoading] = useState(false);
+  const [invites, setInvites] = useState([]);
+
+  useEffect(() => {
+    loadInvites();
+  }, [team.id]);
+
+  async function loadInvites() {
+    const { data } = await supabase
+      .from('invitations')
+      .select('*')
+      .eq('project_id', team.id)
+      .order('created_at', { ascending: false });
+    if (data) setInvites(data);
+  }
 
   function validate(e) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   }
 
-  function handleSend() {
+  async function handleSend() {
     if (!email.trim() || !validate(email.trim())) { setError(t.inviteError); return; }
-    if (invites.find(i => i.email.toLowerCase() === email.trim().toLowerCase())) { setError(t.inviteError); return; }
-    const newInvite = { id: genId(), email: email.trim(), sentAt: new Date().toISOString(), status: 'pending' };
-    onUpdate({ ...team, invites: [...invites, newInvite] }, 'inviteSent');
+    setLoading(true);
+    const { data, error: fnError } = await supabase.functions.invoke('send-invitation', {
+      body: {
+        project_id: team.id,
+        project_name: team.name,
+        email: email.trim(),
+        role,
+        invited_by: user?.id,
+      }
+    });
+    setLoading(false);
+    if (fnError) { setError(fnError.message); return; }
     setEmail('');
     setError('');
+    loadInvites();
   }
 
-  function handleRevoke(id) {
-    onUpdate({ ...team, invites: invites.filter(i => i.id !== id) }, 'orderChanged');
+  async function handleRevoke(id) {
+    await supabase.from('invitations').update({ status: 'revoked' }).eq('id', id);
+    loadInvites();
   }
 
   return (
@@ -1021,7 +1046,13 @@ function InvitePanel({ team, t, onUpdate }) {
           onChange={e => { setEmail(e.target.value); setError(''); }}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
-        <button className="btn btn-p btn-sm" onClick={handleSend}>{t.inviteSend}</button>
+        <select className="fi" style={{ marginBottom: 0, width: 130 }} value={role} onChange={e => setRole(e.target.value)}>
+          <option value="member">Membre</option>
+          <option value="viewer">Lecteur</option>
+        </select>
+        <button className="btn btn-p btn-sm" onClick={handleSend} disabled={loading}>
+          {loading ? '...' : t.inviteSend}
+        </button>
       </div>
       {error && <div style={{ fontSize: 12, color: '#FF4D6D', marginBottom: 10 }}>⚠️ {error}</div>}
       <div style={{ marginTop: 20 }}>
@@ -1034,12 +1065,13 @@ function InvitePanel({ team, t, onUpdate }) {
           <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 10, border: '1px solid #1A2840', marginBottom: 8 }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 500 }}>{inv.email}</div>
-              <div style={{ fontSize: 11, color: '#5A6A88', marginTop: 2 }}>{t.invitePending} · {new Date(inv.sentAt).toLocaleDateString()}</div>
+              <div style={{ fontSize: 11, color: '#5A6A88', marginTop: 2 }}>
+                {inv.role} · {inv.status} · {new Date(inv.created_at).toLocaleDateString()}
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn btn-g btn-xs" onClick={() => handleSend()}>{t.inviteResend}</button>
+            {inv.status === 'pending' && (
               <button className="btn btn-d btn-xs" onClick={() => handleRevoke(inv.id)}>{t.inviteRevoke}</button>
-            </div>
+            )}
           </div>
         ))}
       </div>
