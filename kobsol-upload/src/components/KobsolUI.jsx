@@ -799,21 +799,8 @@ function MobileNav({page,setPage,setSel,onNew,t,showFab}) {
 
 
 
-const today=new Date().toISOString().split('T')[0];
-const minus10=new Date();minus10.setDate(minus10.getDate()-10);
-const minus3=new Date();minus3.setDate(minus3.getDate()-3);
-const plus5=new Date();plus5.setDate(plus5.getDate()+5);
 
-const DEMO=[
-  {id:'d1',name:'Groupe Famille 2025',amountPerPerson:1000,period:'monthly',startDate:'2025-01-01',endDate:'2025-05-01',country:'CA',createdAt:'2024-12-15T00:00:00Z',lates:[],
-   members:[{id:'m1',name:'Marie Claire',email:'marie@email.com'},{id:'m2',name:'Jean-Paul',email:'jp@email.com'},{id:'m3',name:'Sophie',email:'sophie@email.com'},{id:'m4',name:'Antoine',email:'ant@email.com'},{id:'m5',name:'Lucie',email:'lucie@email.com'}]},
-  {id:'d2',name:'Collègues Bureau',amountPerPerson:500,period:'bimonthly',startDate:'2025-09-01',endDate:'2026-05-01',country:'SN',createdAt:'2025-08-20T00:00:00Z',
-   lates:[{id:'l1',memberId:'m7',since:minus10.toISOString().split('T')[0],dueDate:plus5.toISOString().split('T')[0],reason:'Difficultés financières temporaires',resolved:false}],
-   members:[{id:'m6',name:'Fatou',email:'fatou@email.com'},{id:'m7',name:'Moussa',email:'moussa@email.com'},{id:'m8',name:'Aïcha',email:'aicha@email.com'},{id:'m9',name:'Omar',email:'omar@email.com'}]},
-  {id:'d3',name:'Amis Montréal',amountPerPerson:750,period:'monthly',startDate:'2026-01-01',endDate:'2026-12-01',country:'CA',createdAt:'2025-12-01T00:00:00Z',
-   lates:[{id:'l2',memberId:'m10',since:minus3.toISOString().split('T')[0],dueDate:today,reason:'',resolved:false}],
-   members:[{id:'m10',name:'Alexis',email:'alexis@mail.com'},{id:'m11',name:'Priya',email:'priya@mail.com'},{id:'m12',name:'Chen',email:'chen@mail.com'}]},
-];
+
 
 function Landing({onStart,onDemo,lang,setLang,theme,setTheme}){
   const t=T[lang];
