@@ -1162,6 +1162,12 @@ function AppInner() {
       const updates=upd.members.map((m,i)=>({id:m.id,order_index:i,project_id:upd.id,name:m.name}));
       await supabase.from('project_members').upsert(updates);
       await loadProjects();
+      if(key==='inviteSent'){
+  setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
+  if(sel?.id===upd.id) setSel(upd);
+  setToast({msg:t.inviteSent,type:''});
+  return;
+}
     } else {
       setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
       if(sel?.id===upd.id) setSel(upd);
