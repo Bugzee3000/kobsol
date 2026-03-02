@@ -983,7 +983,68 @@ function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
     </div>
   );
 }
+function InvitePanel({ team, t, onUpdate }) {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [toast, setToast] = useState('');
+  const invites = team.invites || [];
 
+  function validate(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  function handleSend() {
+    if (!email.trim() || !validate(email.trim())) { setError(t.inviteError); return; }
+    if (invites.find(i => i.email.toLowerCase() === email.trim().toLowerCase())) { setError(t.inviteError); return; }
+    const newInvite = { id: genId(), email: email.trim(), sentAt: new Date().toISOString(), status: 'pending' };
+    onUpdate({ ...team, invites: [...invites, newInvite] }, 'inviteSent');
+    setEmail('');
+    setError('');
+  }
+
+  function handleRevoke(id) {
+    onUpdate({ ...team, invites: invites.filter(i => i.id !== id) }, 'orderChanged');
+  }
+
+  return (
+    <div>
+      <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{t.inviteMembers}</div>
+      <div style={{ fontSize: 13, color: '#5A6A88', marginBottom: 16 }}>{t.inviteMembersSub}</div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        <input
+          className="fi"
+          style={{ marginBottom: 0, flex: 1 }}
+          type="email"
+          placeholder={t.inviteEmail}
+          value={email}
+          onChange={e => { setEmail(e.target.value); setError(''); }}
+          onKeyDown={e => e.key === 'Enter' && handleSend()}
+        />
+        <button className="btn btn-p btn-sm" onClick={handleSend}>{t.inviteSend}</button>
+      </div>
+      {error && <div style={{ fontSize: 12, color: '#FF4D6D', marginBottom: 10 }}>⚠️ {error}</div>}
+      <div style={{ marginTop: 20 }}>
+        {invites.length === 0 ? (
+          <div className="empty" style={{ padding: '24px 0' }}>
+            <div className="ei">📧</div>
+            <div className="es">{t.noInvites}</div>
+          </div>
+        ) : invites.map(inv => (
+          <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 10, border: '1px solid #1A2840', marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{inv.email}</div>
+              <div style={{ fontSize: 11, color: '#5A6A88', marginTop: 2 }}>{t.invitePending} · {new Date(inv.sentAt).toLocaleDateString()}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-g btn-xs" onClick={() => handleSend()}>{t.inviteResend}</button>
+              <button className="btn btn-d btn-xs" onClick={() => handleRevoke(inv.id)}>{t.inviteRevoke}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 function AppInner() {
   const [screen,setScreen]=useState('landing');
   const [lang,setLang]=useState('fr');
