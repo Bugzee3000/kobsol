@@ -531,7 +531,7 @@ function TeamCard({team,onClick,t,lang}) {
     </div>
   );
 }
-function TeamDetail({team,onBack,onUpdate,t,lang}) {
+function TeamDetail({ team, onBack, onUpdate, t, lang, user }) {
   const [tab,setTab]=useState('overview');
   const [showReorder,setShowReorder]=useState(false);
   const stats=getTeamStats(team);
