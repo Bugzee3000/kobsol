@@ -999,7 +999,7 @@ function AppInner() {
   const [lang,setLang]=useState('fr');
   const [theme,setTheme]=useState('dark');
   const [page,setPage]=useState('teams');
-  const [teams,setTeams]=useState(DEMO);
+  const [teams,setTeams]=useState([]);
   const [sel,setSel]=useState(null);
   const [showC,setShowC]=useState(false);
   const [toast,setToast]=useState(null);
@@ -1007,13 +1007,92 @@ function AppInner() {
   const t=T[lang];
   const CSS=makeCSS(theme);
   useEffect(()=>{document.body.className=theme==='light'?'light':'';return()=>{document.body.className='';};},[theme]);
-  const handleAuth=u=>{setUser(u);setScreen('app');setToast({msg:t.authGreeting+', '+u.name.split(' ')[0]+' !',type:''});};
+  const handleAuth=async(u)=>{
+    // Get full user from Supabase session
+    const {data:{user:sbUser}}=await supabase.auth.getUser();
+    setUser({...u,id:sbUser?.id});
+    setScreen('app');
+    setToast({msg:t.authGreeting+', '+u.name.split(' ')[0]+' !',type:''});
+  };
   const handleDemo=()=>{setUser({name:'Utilisateur démo',email:'demo@kobsol.com'});setScreen('app');setToast({msg:'Mode démo activé',type:'warn'});};
-  const handleSignOut=async()=>{await supabase.auth.signOut();setUser(null);setScreen('landing');setSel(null);setPage('teams');setTeams(DEMO);};
-  const create=team=>{setTeams(p=>[...p,team]);setShowC(false);setToast({msg:t.projectCreated,type:''});};
-  const update=(upd,key='orderChanged')=>{
-    setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
-    if(sel?.id===upd.id) setSel(upd);
+  const handleSignOut=async()=>{await supabase.auth.signOut();setUser(null);setScreen('landing');setSel(null);setPage('teams');setTeams([]);};
+  const loadProjects=async()=>{
+    if(!user) return;
+    const {data,error}=await supabase.from('projects').select(`
+      *,
+      project_members(*, late_payments(*))
+    `).order('created_at',{ascending:false});
+    if(!error && data){
+      // Map DB fields to UI format
+      const mapped=data.map(p=>({
+        id:p.id,
+        name:p.name,
+        amountPerPerson:p.amount_per_person,
+        period:p.period,
+        startDate:p.start_date,
+        endDate:p.end_date,
+        country:p.country,
+        createdAt:p.created_at,
+        admin_id:p.admin_id,
+        members:(p.project_members||[]).sort((a,b)=>a.order_index-b.order_index).map(m=>({
+          id:m.id,name:m.name,email:m.email,order_index:m.order_index,
+          lates:(m.late_payments||[]).map(l=>({
+            id:l.id,since:l.since,dueDate:l.due_date,reason:l.reason,resolved:l.resolved,resolvedAt:l.resolved_at
+          }))
+        })),
+        lates:(p.project_members||[]).flatMap(m=>(m.late_payments||[]).filter(l=>!l.resolved))
+      }));
+      setTeams(mapped);
+    }
+  };
+  useEffect(()=>{if(user) loadProjects();},[user]);
+  const create=async(team)=>{
+    // Save to Supabase
+    const {data:proj,error:projErr}=await supabase.from('projects').insert({
+      name:team.name,
+      amount_per_person:team.amountPerPerson,
+      period:team.period,
+      start_date:team.startDate,
+      end_date:team.endDate||null,
+      country:team.country||null,
+      admin_id:user?.id||null,
+    }).select().single();
+    if(projErr){setToast({msg:'Erreur: '+projErr.message,type:'danger'});return;}
+    // Save members
+    if(team.members?.length){
+      const membersToInsert=team.members.map((m,i)=>({
+        project_id:proj.id,name:m.name,email:m.email||null,order_index:i,status:'active'
+      }));
+      await supabase.from('project_members').insert(membersToInsert);
+    }
+    await loadProjects();
+    setShowC(false);
+    setToast({msg:t.projectCreated,type:''});
+  };
+  const update=async(upd,key='orderChanged')=>{
+    if(key==='lateMarked'){
+      // Save late payment to Supabase
+      const late=upd.newLate;
+      await supabase.from('late_payments').insert({
+        project_id:upd.id,
+        member_id:late.memberId,
+        since:late.since,
+        due_date:late.dueDate||null,
+        reason:late.reason||''
+      });
+      await loadProjects();
+    } else if(key==='lateResolved'){
+      await supabase.from('late_payments').update({resolved:true,resolved_at:new Date().toISOString()}).eq('id',upd.lateId);
+      await loadProjects();
+    } else if(key==='orderChanged'){
+      // Update member order
+      const updates=upd.members.map((m,i)=>({id:m.id,order_index:i,project_id:upd.id,name:m.name}));
+      await supabase.from('project_members').upsert(updates);
+      await loadProjects();
+    } else {
+      setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
+      if(sel?.id===upd.id) setSel(upd);
+    }
     setToast({msg:key==='lateMarked'?t.lateMarked:key==='lateResolved'?t.lateResolved:t.orderChanged,type:key==='lateMarked'?'warn':''});
   };
   if(screen==='landing') return <><style>{CSS}</style><Landing onStart={()=>setScreen('auth')} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
