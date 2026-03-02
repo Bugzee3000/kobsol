@@ -1234,7 +1234,7 @@ function AppInner() {
         ):page==='global'?(
           <><div className="pt">{t.overview}</div><div className="ps">{t.overviewSub}</div><GlobalView teams={teams} t={t} lang={lang}/></>
         ):sel?(
-          <TeamDetail team={sel} onBack={()=>setSel(null)} onUpdate={update} t={t} lang={lang}/>
+         <TeamDetail team={sel} onBack={()=>setSel(null)} onUpdate={update} t={t} lang={lang} user={user}/>
         ):(
           <>
             <div className="pt">{t.myTeams}</div>
