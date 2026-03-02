@@ -802,7 +802,7 @@ function MobileNav({page,setPage,setSel,onNew,t,showFab}) {
 
 
 
-function Landing({onStart,onDemo,lang,setLang,theme,setTheme}){
+function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
   const t=T[lang];
   const CSS=makeCSS(theme);
   const[faqOpen,setFaqOpen]=useState(null);
@@ -871,6 +871,9 @@ function Landing({onStart,onDemo,lang,setLang,theme,setTheme}){
         <div className="lm-nav-r">
           <LangSwitcher lang={lang} setLang={setLang}/>
           <ThemeToggle theme={theme} setTheme={setTheme}/>
+          {onMyProjects&&<button className="lm-nav-cta" style={{background:'transparent',border:'1px solid #00E5A0',color:'#00E5A0',marginRight:8}} onClick={onMyProjects}>
+            {fr?"Mes projets":en?"My projects":"Mis proyectos"} {">"}
+          </button>}
           <button className="lm-nav-cta" onClick={onStart}>
             {fr?"Commencer":en?"Get started":"Comenzar"} {">"}
           </button>
@@ -991,9 +994,30 @@ function AppInner() {
   const [showC,setShowC]=useState(false);
   const [toast,setToast]=useState(null);
   const [user,setUser]=useState(null);
+  const [sessionLoading,setSessionLoading]=useState(true);
   const t=T[lang];
   const CSS=makeCSS(theme);
   useEffect(()=>{document.body.className=theme==='light'?'light':'';return()=>{document.body.className='';};},[theme]);
+
+  // Restaurer la session au chargement
+  useEffect(()=>{
+    supabase.auth.getSession().then(({data:{session}})=>{
+      if(session?.user){
+        const u={id:session.user.id,name:session.user.user_metadata?.name||session.user.email.split('@')[0],email:session.user.email};
+        setUser(u);
+        setScreen('app');
+      }
+      setSessionLoading(false);
+    });
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((_,session)=>{
+      if(session?.user){
+        setUser({id:session.user.id,name:session.user.user_metadata?.name||session.user.email.split('@')[0],email:session.user.email});
+      } else {
+        setUser(null);
+      }
+    });
+    return ()=>subscription.unsubscribe();
+  },[]);
   const handleAuth=async(u)=>{
     // Get full user from Supabase session
     const {data:{user:sbUser}}=await supabase.auth.getUser();
@@ -1082,7 +1106,7 @@ function AppInner() {
     }
     setToast({msg:key==='lateMarked'?t.lateMarked:key==='lateResolved'?t.lateResolved:t.orderChanged,type:key==='lateMarked'?'warn':''});
   };
-  if(screen==='landing') return <><style>{CSS}</style><Landing onStart={()=>setScreen('auth')} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
+  if(screen==='landing') return <><style>{CSS}</style><Landing onStart={()=>setScreen('auth')} onMyProjects={user?()=>setScreen('app'):null} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
   if(screen==='auth') return <><style>{CSS}</style><AuthScreen onAuth={handleAuth} onDemo={handleDemo} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
   return (
     <>
