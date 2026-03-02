@@ -536,7 +536,7 @@ function TeamDetail({team,onBack,onUpdate,t,lang}) {
   const [showReorder,setShowReorder]=useState(false);
   const stats=getTeamStats(team);
   const pl=getPL(team.country);
-  const tabs=[{id:'overview',label:t.summary},{id:'schedule',label:t.cycleSchedule},{id:'members',label:t.membersAndBeneficiaries},{id:'lates',label:t.latePaymentsTab} {id:'invites', label: t.inviteTab}];
+  const tabs=[{id:'overview',label:t.summary},{id:'schedule',label:t.cycleSchedule},{id:'members',label:t.membersAndBeneficiaries},{id:'lates',label:t.latePaymentsTab},{id:'invites',label:t.inviteTab}];
   const handleReorder=newMembers=>{onUpdate({...team,members:newMembers},'orderChanged');setShowReorder(false);};
   return (
     <div>
