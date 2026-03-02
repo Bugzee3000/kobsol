@@ -1004,6 +1004,22 @@ function AppInner() {
   const [showC,setShowC]=useState(false);
   const [toast,setToast]=useState(null);
   const [user,setUser]=useState(null);
+useEffect(()=>{
+  supabase.auth.getSession().then(({data:{session}})=>{
+    if(session?.user){
+      setUser({id:session.user.id,name:session.user.user_metadata?.name||session.user.email.split('@')[0],email:session.user.email});
+      setScreen('app');
+    }
+  });
+  const {data:{subscription}}=supabase.auth.onAuthStateChange((_,session)=>{
+    if(session?.user){
+      setUser({id:session.user.id,name:session.user.user_metadata?.name||session.user.email.split('@')[0],email:session.user.email});
+    } else {
+      setUser(null);
+    }
+  });
+  return ()=>subscription.unsubscribe();
+},[]);
   const t=T[lang];
   const CSS=makeCSS(theme);
   useEffect(()=>{document.body.className=theme==='light'?'light':'';return()=>{document.body.className='';};},[theme]);
