@@ -806,122 +806,273 @@ function MobileNav({page,setPage,setSel,onNew,t,showFab}) {
 function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
   const t=T[lang];
   const CSS=makeCSS(theme);
-  const C=getC(theme);
-  const [currentImg,setCurrentImg]=useState(0);
-  const [fade,setFade]=useState(true);
-
-  const images=[
-    {url:"https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1600&q=80",label:lang==='fr'?"Voyages de rêve":lang==='en'?"Dream travels":"Viajes de ensueño"},
-    {url:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=80",label:lang==='fr'?"Belle propriété":lang==='en'?"Beautiful home":"Hermosa propiedad"},
-    {url:"https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1600&q=80",label:lang==='fr'?"Moments en famille":lang==='en'?"Family moments":"Momentos en familia"},
-    {url:"https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=80",label:lang==='fr'?"Aventures":lang==='en'?"Adventures":"Aventuras"},
-    {url:"https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1600&q=80",label:lang==='fr'?"Voiture de rêve":lang==='en'?"Dream car":"Auto de ensueño"},
-    {url:"https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=80",label:lang==='fr'?"Vacances":lang==='en'?"Vacations":"Vacaciones"},
-  ];
-
+  const[faqOpen,setFaqOpen]=useState(null);
+  const[count,setCount]=useState({users:0,cycles:0,amount:0});
   useEffect(()=>{
-    const interval=setInterval(()=>{
-      setFade(false);
-      setTimeout(()=>{
-        setCurrentImg(i=>(i+1)%images.length);
-        setFade(true);
-      },600);
-    },5000);
-    return()=>clearInterval(interval);
+    const targets={users:12400,cycles:3200,amount:8700000};
+    const dur=1800,start=Date.now();
+    const tick=()=>{
+      const p=Math.min((Date.now()-start)/dur,1),ease=1-Math.pow(1-p,3);
+      setCount({users:Math.floor(targets.users*ease),cycles:Math.floor(targets.cycles*ease),amount:Math.floor(targets.amount*ease)});
+      if(p<1) requestAnimationFrame(tick);
+    };
+    const timer=setTimeout(()=>requestAnimationFrame(tick),400);
+    return()=>clearTimeout(timer);
   },[]);
 
   const fr=lang==='fr',en=lang==='en';
+  const feats=[
+    {i:"🤝",title:fr?"Gestion de groupes":en?"Group management":"Gestión de grupos",
+     desc:fr?"Créez et gérez vos tontines, pools et cercles d'épargne avec facilité.":en?"Create and manage your savings groups with ease.":"Crea y administra tus grupos de ahorro con facilidad."},
+    {i:"📅",title:fr?"Cycles automatisés":en?"Automated cycles":"Ciclos automatizados",
+     desc:fr?"Calendriers de réception générés automatiquement selon la période choisie.":en?"Reception schedules generated automatically.":"Calendarios de recepción generados automáticamente."},
+    {i:"⚠️",title:fr?"Gestion des retards":en?"Late payment tracking":"Seguimiento de atrasos",
+     desc:fr?"Signalez et suivez les retards de paiement avec raisons et échéances.":en?"Flag and track late payments with reasons and deadlines.":"Reporta y rastrea pagos atrasados con plazos."},
+    {i:"🌍",title:fr?"195+ pays":en?"195+ countries":"195+ países",
+     desc:fr?"Sélecteur de pays intégré pour les groupes internationaux et diaspora.":en?"Built-in country selector for international groups.":"Selector de país integrado para grupos internacionales."},
+    {i:"🔒",title:fr?"100% privé":en?"100% private":"100% privado",
+     desc:fr?"Vos données restent privées. Aucun partage, aucune publicité.":en?"Your data stays private. No sharing, no ads.":"Tus datos son privados. Sin compartir, sin anuncios."},
+    {i:"📊",title:fr?"Statistiques globales":en?"Global statistics":"Estadísticas globales",
+     desc:fr?"Vue d'ensemble de tous vos projets sans exposer les détails individuels.":en?"Overview of all projects without individual details.":"Vista general de todos tus proyectos."},
+  ];
+  const steps=[
+    {n:"1",title:fr?"Créez votre projet":en?"Create your project":"Crea tu proyecto",
+     desc:fr?"Nommez votre groupe, choisissez le montant et la période.":en?"Name your group, choose amount and period.":"Nombra tu grupo, elige monto y período."},
+    {n:"2",title:fr?"Ajoutez vos membres":en?"Add your members":"Agrega miembros",
+     desc:fr?"Invitez les participants et définissez l'ordre de réception.":en?"Invite participants and set the reception order.":"Invita participantes y define el orden de recepción."},
+    {n:"3",title:fr?"Suivez en temps réel":en?"Track in real time":"Seguimiento en tiempo real",
+     desc:fr?"Consultez les cycles, statuts et historique à tout moment.":en?"View cycles, statuses and history at any time.":"Consulta ciclos, estados e historial en cualquier momento."},
+    {n:"4",title:fr?"Gérez les retards":en?"Manage late payments":"Gestiona atrasos",
+     desc:fr?"Signalez les retards et résolvez-les facilement.":en?"Flag late payments and resolve them easily.":"Reporta atrasos y resuélvelos fácilmente."},
+  ];
+  const testis=[
+    {q:"Enfin un outil simple pour gérer notre tontine familiale !",name:"Marie C.",role:fr?"Montréal, Canada":"Montreal, Canada",init:"M"},
+    {q:"Notre association compte 18 membres. KOB.SOL nous a sauvé des heures de calcul chaque mois.",name:"Karim D.",role:fr?"Dakar, Sénégal":"Dakar, Senegal",init:"K"},
+    {q:"Parfait pour notre groupe de diaspora. Multilingue, simple, et nos données restent privées.",name:"Priya S.",role:"Paris, France",init:"P"},
+  ];
+  const faqs=[
+    {q:fr?"C'est quoi une tontine ?":en?"What is a savings pool?":"¿Qué es una tontina?",
+     a:fr?"Un système où chaque membre cotise et reçoit à tour de rôle la cagnotte.":en?"Members contribute regularly and take turns receiving the full pot.":"Sistema donde cada miembro contribuye y recibe el total en turnos."},
+    {q:fr?"KOB.SOL gère-t-il l'argent ?":en?"Does KOB.SOL handle money?":"¿KOB.SOL maneja dinero?",
+     a:fr?"Non, c'est un outil de suivi uniquement. Les transferts restent entre vous.":en?"No, it's a tracking tool only.":"No, solo seguimiento. Las transferencias son entre tú y tus miembros."},
+    {q:fr?"Mes données sont-elles sécurisées ?":en?"Is my data secure?":"¿Mis datos están seguros?",
+     a:fr?"Oui, vos projets sont privés. Aucune pub, aucun partage de données.":en?"Yes. Your projects are private. No ads, no data sharing.":"Sí. Privados. Sin anuncios ni compartir datos."},
+    {q:fr?"Combien ça coûte ?":en?"How much does it cost?":"¿Cuánto cuesta?",
+     a:fr?"Gratuit pour commencer. Créez votre premier projet dès aujourd'hui.":en?"Free to start. Create your first project today.":"Gratis para comenzar. Crea tu primer proyecto hoy."},
+    {q:fr?"Puis-je gérer plusieurs groupes ?":en?"Can I manage multiple groups?":"¿Puedo gestionar múltiples grupos?",
+     a:fr?"Oui, autant de projets que nécessaire depuis un seul tableau de bord.":en?"Yes, as many projects as needed from one dashboard.":"Sí, tantos proyectos como necesites desde un panel."},
+  ];
+  const fmtNum=n=>n>=1000000?`${(n/1000000).toFixed(1)}M`:n>=1000?`${(n/1000).toFixed(1)}k`:""+n;
 
   return(
-    <div style={{position:'relative',width:'100vw',height:'100vh',overflow:'hidden',fontFamily:"'Outfit',sans-serif"}}>
+    <div className="lm-wrap">
       <style>{CSS}</style>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600;700&display=swap');
-        .lnd-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .8s ease;background:#000;}
-        .lnd-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,rgba(0,0,0,.5) 50%,rgba(0,0,0,.75) 100%);}
-        .lnd-nav{position:absolute;top:0;left:0;right:0;z-index:10;padding:24px 40px;display:flex;align-items:center;justify-content:space-between;}
-        .lnd-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;letter-spacing:-1px;}
-        .lnd-nav-r{display:flex;align-items:center;gap:12px;}
-        .lnd-btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:9px 22px;border-radius:50px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;}
-        .lnd-btn-outline:hover{background:rgba(255,255,255,.15);border-color:#fff;}
-        .lnd-btn-main{background:#00E5A0;border:none;color:#000;padding:10px 24px;border-radius:50px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;}
-        .lnd-btn-main:hover{background:#00c48a;transform:translateY(-1px);}
-        .lnd-content{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
-        .lnd-eyebrow{font-size:11px;color:rgba(255,255,255,.7);letter-spacing:5px;text-transform:uppercase;margin-bottom:20px;}
-        .lnd-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(48px,8vw,96px);color:#fff;line-height:1;letter-spacing:-3px;margin-bottom:20px;}
-        .lnd-title span{color:#00E5A0;}
-        .lnd-sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.75);max-width:520px;line-height:1.75;margin-bottom:44px;font-weight:300;}
-        .lnd-cta-row{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:60px;}
-        .lnd-cta-main{background:#00E5A0;border:none;color:#000;font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;padding:17px 44px;border-radius:50px;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:10px;}
-        .lnd-cta-main:hover{background:#00c48a;transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,229,160,.4);}
-        .lnd-cta-ghost{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;font-family:'Outfit',sans-serif;font-weight:500;font-size:15px;padding:15px 32px;border-radius:50px;cursor:pointer;transition:all .25s;}
-        .lnd-cta-ghost:hover{background:rgba(255,255,255,.1);border-color:#fff;}
-        .lnd-stats{display:flex;gap:48px;justify-content:center;flex-wrap:wrap;}
-        .lnd-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:#fff;}
-        .lnd-stat-lbl{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px;}
-        .lnd-dots{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:8px;}
-        .lnd-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);border:none;cursor:pointer;padding:0;transition:all .3s;}
-        .lnd-dot.on{background:#00E5A0;width:24px;border-radius:3px;}
-        .lnd-img-label{position:absolute;bottom:72px;right:40px;z-index:10;font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;}
-        .lnd-lang-theme{display:flex;gap:8px;align-items:center;}
-        @media(max-width:600px){.lnd-nav{padding:16px 20px;}.lnd-stats{gap:24px;}.lnd-img-label{display:none;}}
-      `}</style>
-
-      {/* Image de fond */}
-      <img
-        className="lnd-img"
-        src={images[currentImg].url}
-        alt={images[currentImg].label}
-        style={{opacity:fade?1:0}}
-      />
-      <div className="lnd-overlay"/>
-
-      {/* Nav */}
-      <div className="lnd-nav">
-        <div className="lnd-logo">KOB.SOL</div>
-        <div className="lnd-nav-r">
-          <div className="lnd-lang-theme">
-            <LangSwitcher lang={lang} setLang={setLang}/>
-            <ThemeToggle theme={theme} setTheme={setTheme}/>
+      <nav className="lm-nav">
+        <div className="lm-nav-logo">KOB.SOL</div>
+        <div className="lm-nav-r">
+          <LangSwitcher lang={lang} setLang={setLang}/>
+          <ThemeToggle theme={theme} setTheme={setTheme}/>
+          {onMyProjects&&<button className="lm-nav-cta" style={{background:'transparent',border:'1px solid #00E5A0',color:'#00E5A0',marginRight:8}} onClick={onMyProjects}>
+            {fr?"Mes projets":en?"My projects":"Mis proyectos"} {">"}
+          </button>}
+          <button className="lm-nav-cta" onClick={onStart}>
+            {fr?"Commencer":en?"Get started":"Comenzar"} {">"}
+          </button>
+        </div>
+      </nav>
+      <section className="lm-hero">
+        <div className="lm-grid"/>
+        <div className="lm-glow"/>
+        <div className="lm-eyebrow">{"✦"} {fr?"Épargne collective":"Savings groups"} {"✦"}</div>
+        <div className="lm-logo">KOB.SOL</div>
+        <div className="lm-tagline">{t.tagline}</div>
+        <div className="lm-sub">{fr?"Tontines · Pools · Cercles d'épargne · Diaspora":en?"Tontines · Pools · Savings circles · Diaspora":"Tontinas · Pools · Círculos de ahorro · Diáspora"}</div>
+        <div className="lm-cta-row">
+          <button className="lm-cta-main" onClick={onStart}>{t.startBtn} {">"}</button>
+          {onDemo&&<button className="lm-cta-demo" onClick={onDemo}>{"▶"} {fr?"Voir la démo":en?"See demo":"Ver demo"}</button>}
+        </div>
+        <div className="lm-stats">
+          <div className="lm-stat"><div className="lm-stat-val">{fmtNum(count.users)}+</div><div className="lm-stat-lbl">{fr?"Utilisateurs actifs":en?"Active users":"Usuarios activos"}</div></div>
+          <div className="lm-stat"><div className="lm-stat-val">{fmtNum(count.cycles)}+</div><div className="lm-stat-lbl">{fr?"Cycles complétés":en?"Completed cycles":"Ciclos completados"}</div></div>
+          <div className="lm-stat"><div className="lm-stat-val">{"$"}{fmtNum(count.amount)}+</div><div className="lm-stat-lbl">{fr?"Distribués":en?"Distributed":"Distribuidos"}</div></div>
+        </div>
+      </section>
+      <div className="lm-divider"/>
+      <div style={{padding:"80px 24px"}}>
+        <div className="lm-section" style={{padding:0}}>
+          <div style={{textAlign:"center"}}>
+            <div className="lm-section-eyebrow">{fr?"Fonctionnalités":en?"Features":"Características"}</div>
+            <div className="lm-section-title">{fr?"Tout ce dont vous avez besoin":en?"Everything you need":"Todo lo que necesitas"}</div>
           </div>
-          {onMyProjects&&<button className="lnd-btn-outline" onClick={onMyProjects}>
-            {fr?"Mes projets":en?"My projects":"Mis proyectos"}
-          </button>}
-          <button className="lnd-btn-main" onClick={onStart}>
-            {fr?"Commencer":en?"Get started":"Comenzar"}
-          </button>
+          <div className="lm-feats">
+            {feats.map((f,i)=>(
+              <div key={i} className="lm-feat-card">
+                <div className="lm-feat-icon">{f.i}</div>
+                <div className="lm-feat-title">{f.title}</div>
+                <div className="lm-feat-desc">{f.desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Contenu central */}
-      <div className="lnd-content">
-        <div className="lnd-eyebrow">✦ {fr?"Épargne collective":en?"Group savings":"Ahorro colectivo"} ✦</div>
-        <div className="lnd-title">
-          {fr?<>Réalisez vos<br/><span>projets ensemble</span></>:en?<>Achieve your<br/><span>goals together</span></>:<>Logra tus<br/><span>metas juntos</>}
-        </div>
-        <div className="lnd-sub">{t.tagline}</div>
-        <div className="lnd-cta-row">
-          <button className="lnd-cta-main" onClick={onStart}>
-            {t.startBtn} →
-          </button>
-          {onDemo&&<button className="lnd-cta-ghost" onClick={onDemo}>
-            {fr?"Voir la démo":en?"See demo":"Ver demo"}
-          </button>}
-        </div>
-        <div className="lnd-stats">
-          <div className="lnd-stat"><div className="lnd-stat-val">12k+</div><div className="lnd-stat-lbl">{fr?"Utilisateurs":en?"Users":"Usuarios"}</div></div>
-          <div className="lnd-stat"><div className="lnd-stat-val">3 200+</div><div className="lnd-stat-lbl">{fr?"Cycles complétés":en?"Completed cycles":"Ciclos"}</div></div>
-          <div className="lnd-stat"><div className="lnd-stat-val">$8.7M+</div><div className="lnd-stat-lbl">{fr?"Distribués":en?"Distributed":"Distribuidos"}</div></div>
+      <div className="lm-divider"/>
+      <div style={{padding:"80px 24px"}}>
+        <div className="lm-section" style={{padding:0}}>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <div className="lm-section-eyebrow">{fr?"Comment ça marche":en?"How it works":"Cómo funciona"}</div>
+            <div className="lm-section-title">{fr?"En 4 étapes simples":en?"In 4 simple steps":"En 4 pasos simples"}</div>
+          </div>
+          <div className="lm-steps">
+            {steps.map((s,i)=>(
+              <div key={i} className="lm-step">
+                <div className="lm-step-num">{s.n}</div>
+                <div className="lm-step-title">{s.title}</div>
+                <div className="lm-step-desc">{s.desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+      <div className="lm-divider"/>
+      <div style={{padding:"80px 24px"}}>
+        <div className="lm-section" style={{padding:0}}>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <div className="lm-section-eyebrow">{fr?"Témoignages":en?"Testimonials":"Testimonios"}</div>
+            <div className="lm-section-title">{fr?"Ils nous font confiance":en?"They trust us":"Confían en nosotros"}</div>
+          </div>
+          <div className="lm-testi">
+            {testis.map((ti,i)=>(
+              <div key={i} className="lm-testi-card">
+                <div className="lm-testi-text">{ti.q}</div>
+                <div className="lm-testi-author">
+                  <div className="lm-testi-avatar">{ti.init}</div>
+                  <div><div className="lm-testi-name">{ti.name}</div><div className="lm-testi-role">{ti.role}</div></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="lm-divider"/>
+      <div style={{padding:"80px 24px"}}>
+        <div className="lm-section" style={{padding:0,maxWidth:720}}>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <div className="lm-section-eyebrow">FAQ</div>
+            <div className="lm-section-title">{fr?"Questions fréquentes":en?"Common questions":"Preguntas frecuentes"}</div>
+          </div>
+          <div className="lm-faq">
+            {faqs.map((f,i)=>(
+              <div key={i} className="lm-faq-item">
+                <button className="lm-faq-q" onClick={()=>setFaqOpen(faqOpen===i?null:i)}>
+                  <span>{f.q}</span><span>{faqOpen===i?"▲":"▼"}</span>
+                </button>
+                {faqOpen===i&&<div className="lm-faq-a">{f.a}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="lm-footer-cta">
+        <div className="lm-footer-title">
+          {fr?"Prêt à simplifier votre épargne collective ?":en?"Ready to simplify your savings group?":"¿Listo para simplificar tu grupo de ahorro?"}
+        </div>
+        <div className="lm-footer-sub">
+          {fr?"Gratuit pour commencer. Aucune carte bancaire requise.":en?"Free to start. No credit card required.":"Gratis para comenzar. Sin tarjeta de crédito."}
+        </div>
+        <button className="lm-cta-main" onClick={onStart}>{t.startBtn} {">"}</button>
+      </div>
+    </div>
+  );
+}
+function InvitePanel({ team, t, user }) {
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('member');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [invites, setInvites] = useState([]);
 
-      {/* Label image */}
-      <div className="lnd-img-label">{images[currentImg].label}</div>
+  useEffect(() => {
+    loadInvites();
+  }, [team.id]);
 
-      {/* Dots de navigation */}
-      <div className="lnd-dots">
-        {images.map((_,i)=>(
-          <button key={i} className={`lnd-dot${currentImg===i?' on':''}`} onClick={()=>{setFade(false);setTimeout(()=>{setCurrentImg(i);setFade(true);},300);}}/>
+  async function loadInvites() {
+    const { data } = await supabase
+      .from('invitations')
+      .select('*')
+      .eq('project_id', team.id)
+      .order('created_at', { ascending: false });
+    if (data) setInvites(data);
+  }
+
+  function validate(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  async function handleSend() {
+    if (!email.trim() || !validate(email.trim())) { setError(t.inviteError); return; }
+    setLoading(true);
+    const { data, error: fnError } = await supabase.functions.invoke('send-invitation', {
+      body: {
+        project_id: team.id,
+        project_name: team.name,
+        email: email.trim(),
+        role,
+        invited_by: user?.id,
+      }
+    });
+    setLoading(false);
+    if (fnError) { setError(fnError.message); return; }
+    setEmail('');
+    setError('');
+    loadInvites();
+  }
+
+  async function handleRevoke(id) {
+    await supabase.from('invitations').update({ status: 'revoked' }).eq('id', id);
+    loadInvites();
+  }
+
+  return (
+    <div>
+      <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{t.inviteMembers}</div>
+      <div style={{ fontSize: 13, color: '#5A6A88', marginBottom: 16 }}>{t.inviteMembersSub}</div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        <input
+          className="fi"
+          style={{ marginBottom: 0, flex: 1 }}
+          type="email"
+          placeholder={t.inviteEmail}
+          value={email}
+          onChange={e => { setEmail(e.target.value); setError(''); }}
+          onKeyDown={e => e.key === 'Enter' && handleSend()}
+        />
+        <select className="fi" style={{ marginBottom: 0, width: 130 }} value={role} onChange={e => setRole(e.target.value)}>
+          <option value="member">Membre</option>
+          <option value="viewer">Lecteur</option>
+        </select>
+        <button className="btn btn-p btn-sm" onClick={handleSend} disabled={loading}>
+          {loading ? '...' : t.inviteSend}
+        </button>
+      </div>
+      {error && <div style={{ fontSize: 12, color: '#FF4D6D', marginBottom: 10 }}>⚠️ {error}</div>}
+      <div style={{ marginTop: 20 }}>
+        {invites.length === 0 ? (
+          <div className="empty" style={{ padding: '24px 0' }}>
+            <div className="ei">📧</div>
+            <div className="es">{t.noInvites}</div>
+          </div>
+        ) : invites.map(inv => (
+          <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 10, border: '1px solid #1A2840', marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{inv.email}</div>
+              <div style={{ fontSize: 11, color: '#5A6A88', marginTop: 2 }}>
+                {inv.role} · {inv.status} · {new Date(inv.created_at).toLocaleDateString()}
+              </div>
+            </div>
+            {inv.status === 'pending' && (
+              <button className="btn btn-d btn-xs" onClick={() => handleRevoke(inv.id)}>{t.inviteRevoke}</button>
+            )}
+          </div>
         ))}
       </div>
     </div>
