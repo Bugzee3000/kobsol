@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const DARK = {bg:"#080D1A",bgCard:"#0F1729",bgCardHover:"#162035",accent:"#00E5A0",accentDim:"#00b37d",accentGlow:"rgba(0,229,160,0.15)",gold:"#F5C842",goldDim:"#c9a030",text:"#E8EDF5",textMuted:"#5A6A88",textSoft:"#8A9AB8",border:"#1A2840",borderLight:"#243552",danger:"#FF4D6D",dangerDim:"#cc2244",dangerGlow:"rgba(255,77,109,0.15)",warning:"#FB923C",warningGlow:"rgba(251,146,60,0.15)",blue:"#4A90E2",purple:"#A78BFA"};
 const LIGHT = {bg:"#F4F6FB",bgCard:"#FFFFFF",bgCardHover:"#EEF1F8",accent:"#00A372",accentDim:"#007a55",accentGlow:"rgba(0,163,114,0.12)",gold:"#B8860B",goldDim:"#8a6508",text:"#0F1729",textMuted:"#6B7A99",textSoft:"#8A9AB8",border:"#DDE3F0",borderLight:"#C8D0E4",danger:"#D63855",dangerDim:"#aa1c38",dangerGlow:"rgba(214,56,85,0.12)",warning:"#C2610A",warningGlow:"rgba(194,97,10,0.12)",blue:"#2563EB",purple:"#7C3AED"};
@@ -670,10 +675,22 @@ function AuthScreen({onAuth,onDemo,lang,setLang,theme,setTheme}) {
   const handleSubmit=async()=>{
     if(!validate()) return;
     setLoading(true);
-    await new Promise(r=>setTimeout(r,900));
+    try {
+      if(mode==='reset'){
+        const {error}=await supabase.auth.resetPasswordForEmail(form.email,{redirectTo:window.location.origin+'/auth/callback'});
+        if(error) setGlobalErr(error.message);
+        else setSuccess(t.authResetSent);
+      } else if(mode==='register'){
+        const {error}=await supabase.auth.signUp({email:form.email,password:form.password,options:{data:{name:form.name}}});
+        if(error) setGlobalErr(error.message);
+        else setSuccess('Compte créé ! Vérifiez votre email pour confirmer.');
+      } else {
+        const {data,error}=await supabase.auth.signInWithPassword({email:form.email,password:form.password});
+        if(error) setGlobalErr(t.authErrInvalid);
+        else onAuth({name:data.user.user_metadata?.name||form.email.split('@')[0],email:data.user.email});
+      }
+    } catch(e){ setGlobalErr(e.message); }
     setLoading(false);
-    if(mode==='reset'){setSuccess(t.authResetSent);return;}
-    onAuth({name:form.name||form.email.split('@')[0],email:form.email});
   };
   const features=[
     {icon:'🔒',title:lang==='fr'?'Projets 100% privés':lang==='en'?'100% private projects':'Proyectos 100% privados',desc:lang==='fr'?'Chaque utilisateur accède uniquement à ses données.':lang==='en'?'Each user accesses only their data.':'Cada usuario accede solo a sus datos.'},
@@ -992,7 +1009,7 @@ function AppInner() {
   useEffect(()=>{document.body.className=theme==='light'?'light':'';return()=>{document.body.className='';};},[theme]);
   const handleAuth=u=>{setUser(u);setScreen('app');setToast({msg:t.authGreeting+', '+u.name.split(' ')[0]+' !',type:''});};
   const handleDemo=()=>{setUser({name:'Utilisateur démo',email:'demo@kobsol.com'});setScreen('app');setToast({msg:'Mode démo activé',type:'warn'});};
-  const handleSignOut=()=>{setUser(null);setScreen('landing');setSel(null);setPage('teams');setTeams(DEMO);};
+  const handleSignOut=async()=>{await supabase.auth.signOut();setUser(null);setScreen('landing');setSel(null);setPage('teams');setTeams(DEMO);};
   const create=team=>{setTeams(p=>[...p,team]);setShowC(false);setToast({msg:t.projectCreated,type:''});};
   const update=(upd,key='orderChanged')=>{
     setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
