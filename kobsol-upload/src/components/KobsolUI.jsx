@@ -1178,10 +1178,9 @@ function AppInner() {
     setShowC(false);
     setToast({msg:t.projectCreated,type:''});
   };
-  const update=async(upd,key='orderChanged')=>{
+ const update=async(upd,key='orderChanged')=>{
     if(key==='lateMarked'){
-      // Save late payment to Supabase
-      const late=upd.newLate;
+      const late=upd.lates[upd.lates.length-1];
       await supabase.from('late_payments').insert({
         project_id:upd.id,
         member_id:late.memberId,
@@ -1191,24 +1190,26 @@ function AppInner() {
       });
       await loadProjects();
     } else if(key==='lateResolved'){
-      await supabase.from('late_payments').update({resolved:true,resolved_at:new Date().toISOString()}).eq('id',upd.lateId);
+      const resolvedLate=upd.lates.find(l=>l.resolved&&l.resolvedAt===new Date().toISOString().split('T')[0]);
+      if(resolvedLate){
+        await supabase.from('late_payments').update({resolved:true,resolved_at:new Date().toISOString()}).eq('id',resolvedLate.id);
+      }
       await loadProjects();
     } else if(key==='orderChanged'){
-      // Update member order
       const updates=upd.members.map((m,i)=>({id:m.id,order_index:i,project_id:upd.id,name:m.name}));
       await supabase.from('project_members').upsert(updates);
       await loadProjects();
-      if(key==='inviteSent'){
-  setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
-  if(sel?.id===upd.id) setSel(upd);
-  setToast({msg:t.inviteSent,type:''});
-  return;
-}
+    } else if(key==='inviteSent'){
+      setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
+      if(sel?.id===upd.id) setSel(upd);
+      setToast({msg:t.inviteSent,type:''});
+      return;
     } else {
       setTeams(p=>p.map(x=>x.id===upd.id?upd:x));
       if(sel?.id===upd.id) setSel(upd);
     }
     setToast({msg:key==='lateMarked'?t.lateMarked:key==='lateResolved'?t.lateResolved:t.orderChanged,type:key==='lateMarked'?'warn':''});
+  };
   };
   if(screen==='landing') return <><style>{CSS}</style><Landing onStart={()=>setScreen('auth')} onMyProjects={user?()=>setScreen('app'):null} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
   if(screen==='auth') return <><style>{CSS}</style><AuthScreen onAuth={handleAuth} onDemo={handleDemo} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
