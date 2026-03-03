@@ -1260,7 +1260,7 @@ function AppInner() {
       {toast&&<Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
       {!sel&&<MobileNav page={page} setPage={setPage} setSel={setSel} onNew={()=>setShowC(true)} t={t} showFab={page!=='profile'}/>}
     </>
-  );
+
 }
 
 class ErrorBoundary extends React.Component {
