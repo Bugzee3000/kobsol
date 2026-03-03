@@ -806,8 +806,21 @@ function MobileNav({page,setPage,setSel,onNew,t,showFab}) {
 function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
   const t=T[lang];
   const CSS=makeCSS(theme);
-  const[faqOpen,setFaqOpen]=useState(null);
-  const[count,setCount]=useState({users:0,cycles:0,amount:0});
+  const [currentImg,setCurrentImg]=useState(0);
+  const [fade,setFade]=useState(true);
+  const [faqOpen,setFaqOpen]=useState(null);
+  const [count,setCount]=useState({users:0,cycles:0,amount:0});
+  const fr=lang==='fr',en=lang==='en';
+
+  const images=[
+    {url:"https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1600&q=80",label:fr?"Voyages de rêve":en?"Dream travels":"Viajes"},
+    {url:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=80",label:fr?"Belle propriété":en?"Beautiful home":"Propiedad"},
+    {url:"https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1600&q=80",label:fr?"Moments en famille":en?"Family moments":"Familia"},
+    {url:"https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=80",label:fr?"Aventures":en?"Adventures":"Aventuras"},
+    {url:"https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1600&q=80",label:fr?"Voiture de rêve":en?"Dream car":"Auto"},
+    {url:"https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=80",label:fr?"Vacances":en?"Vacations":"Vacaciones"},
+  ];
+
   useEffect(()=>{
     const targets={users:12400,cycles:3200,amount:8700000};
     const dur=1800,start=Date.now();
@@ -816,170 +829,152 @@ function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
       setCount({users:Math.floor(targets.users*ease),cycles:Math.floor(targets.cycles*ease),amount:Math.floor(targets.amount*ease)});
       if(p<1) requestAnimationFrame(tick);
     };
-    const timer=setTimeout(()=>requestAnimationFrame(tick),400);
-    return()=>clearTimeout(timer);
+    setTimeout(()=>requestAnimationFrame(tick),400);
   },[]);
 
-  const fr=lang==='fr',en=lang==='en';
-  const feats=[
-    {i:"🤝",title:fr?"Gestion de groupes":en?"Group management":"Gestión de grupos",
-     desc:fr?"Créez et gérez vos tontines, pools et cercles d'épargne avec facilité.":en?"Create and manage your savings groups with ease.":"Crea y administra tus grupos de ahorro con facilidad."},
-    {i:"📅",title:fr?"Cycles automatisés":en?"Automated cycles":"Ciclos automatizados",
-     desc:fr?"Calendriers de réception générés automatiquement selon la période choisie.":en?"Reception schedules generated automatically.":"Calendarios de recepción generados automáticamente."},
-    {i:"⚠️",title:fr?"Gestion des retards":en?"Late payment tracking":"Seguimiento de atrasos",
-     desc:fr?"Signalez et suivez les retards de paiement avec raisons et échéances.":en?"Flag and track late payments with reasons and deadlines.":"Reporta y rastrea pagos atrasados con plazos."},
-    {i:"🌍",title:fr?"195+ pays":en?"195+ countries":"195+ países",
-     desc:fr?"Sélecteur de pays intégré pour les groupes internationaux et diaspora.":en?"Built-in country selector for international groups.":"Selector de país integrado para grupos internacionales."},
-    {i:"🔒",title:fr?"100% privé":en?"100% private":"100% privado",
-     desc:fr?"Vos données restent privées. Aucun partage, aucune publicité.":en?"Your data stays private. No sharing, no ads.":"Tus datos son privados. Sin compartir, sin anuncios."},
-    {i:"📊",title:fr?"Statistiques globales":en?"Global statistics":"Estadísticas globales",
-     desc:fr?"Vue d'ensemble de tous vos projets sans exposer les détails individuels.":en?"Overview of all projects without individual details.":"Vista general de todos tus proyectos."},
-  ];
-  const steps=[
-    {n:"1",title:fr?"Créez votre projet":en?"Create your project":"Crea tu proyecto",
-     desc:fr?"Nommez votre groupe, choisissez le montant et la période.":en?"Name your group, choose amount and period.":"Nombra tu grupo, elige monto y período."},
-    {n:"2",title:fr?"Ajoutez vos membres":en?"Add your members":"Agrega miembros",
-     desc:fr?"Invitez les participants et définissez l'ordre de réception.":en?"Invite participants and set the reception order.":"Invita participantes y define el orden de recepción."},
-    {n:"3",title:fr?"Suivez en temps réel":en?"Track in real time":"Seguimiento en tiempo real",
-     desc:fr?"Consultez les cycles, statuts et historique à tout moment.":en?"View cycles, statuses and history at any time.":"Consulta ciclos, estados e historial en cualquier momento."},
-    {n:"4",title:fr?"Gérez les retards":en?"Manage late payments":"Gestiona atrasos",
-     desc:fr?"Signalez les retards et résolvez-les facilement.":en?"Flag late payments and resolve them easily.":"Reporta atrasos y resuélvelos fácilmente."},
-  ];
-  const testis=[
-    {q:"Enfin un outil simple pour gérer notre tontine familiale !",name:"Marie C.",role:fr?"Montréal, Canada":"Montreal, Canada",init:"M"},
-    {q:"Notre association compte 18 membres. KOB.SOL nous a sauvé des heures de calcul chaque mois.",name:"Karim D.",role:fr?"Dakar, Sénégal":"Dakar, Senegal",init:"K"},
-    {q:"Parfait pour notre groupe de diaspora. Multilingue, simple, et nos données restent privées.",name:"Priya S.",role:"Paris, France",init:"P"},
-  ];
-  const faqs=[
-    {q:fr?"C'est quoi une tontine ?":en?"What is a savings pool?":"¿Qué es una tontina?",
-     a:fr?"Un système où chaque membre cotise et reçoit à tour de rôle la cagnotte.":en?"Members contribute regularly and take turns receiving the full pot.":"Sistema donde cada miembro contribuye y recibe el total en turnos."},
-    {q:fr?"KOB.SOL gère-t-il l'argent ?":en?"Does KOB.SOL handle money?":"¿KOB.SOL maneja dinero?",
-     a:fr?"Non, c'est un outil de suivi uniquement. Les transferts restent entre vous.":en?"No, it's a tracking tool only.":"No, solo seguimiento. Las transferencias son entre tú y tus miembros."},
-    {q:fr?"Mes données sont-elles sécurisées ?":en?"Is my data secure?":"¿Mis datos están seguros?",
-     a:fr?"Oui, vos projets sont privés. Aucune pub, aucun partage de données.":en?"Yes. Your projects are private. No ads, no data sharing.":"Sí. Privados. Sin anuncios ni compartir datos."},
-    {q:fr?"Combien ça coûte ?":en?"How much does it cost?":"¿Cuánto cuesta?",
-     a:fr?"Gratuit pour commencer. Créez votre premier projet dès aujourd'hui.":en?"Free to start. Create your first project today.":"Gratis para comenzar. Crea tu primer proyecto hoy."},
-    {q:fr?"Puis-je gérer plusieurs groupes ?":en?"Can I manage multiple groups?":"¿Puedo gestionar múltiples grupos?",
-     a:fr?"Oui, autant de projets que nécessaire depuis un seul tableau de bord.":en?"Yes, as many projects as needed from one dashboard.":"Sí, tantos proyectos como necesites desde un panel."},
-  ];
+  useEffect(()=>{
+    const iv=setInterval(()=>{
+      setFade(false);
+      setTimeout(()=>{setCurrentImg(i=>(i+1)%images.length);setFade(true);},600);
+    },5000);
+    return()=>clearInterval(iv);
+  },[]);
+
   const fmtNum=n=>n>=1000000?`${(n/1000000).toFixed(1)}M`:n>=1000?`${(n/1000).toFixed(1)}k`:""+n;
 
+  const faqs=[
+    {q:fr?"C'est quoi une tontine ?":en?"What is a savings pool?":"¿Qué es una tontina?",a:fr?"Un système où chaque membre cotise et reçoit à tour de rôle.":en?"Members contribute and take turns receiving the pot.":"Miembros contribuyen y reciben el total en turnos."},
+    {q:fr?"KOB.SOL gère-t-il l'argent ?":en?"Does KOB.SOL handle money?":"¿KOB.SOL maneja dinero?",a:fr?"Non, c'est un outil de suivi uniquement.":en?"No, tracking only.":"No, solo seguimiento."},
+    {q:fr?"Combien ça coûte ?":en?"How much does it cost?":"¿Cuánto cuesta?",a:fr?"Gratuit pour commencer.":en?"Free to start.":"Gratis para comenzar."},
+  ];
+
   return(
-    <div className="lm-wrap">
+    <div style={{fontFamily:"'Outfit',sans-serif"}}>
       <style>{CSS}</style>
-      <nav className="lm-nav">
-        <div className="lm-nav-logo">KOB.SOL</div>
-        <div className="lm-nav-r">
-          <LangSwitcher lang={lang} setLang={setLang}/>
-          <ThemeToggle theme={theme} setTheme={setTheme}/>
-          {onMyProjects&&<button className="lm-nav-cta" style={{background:'transparent',border:'1px solid #00E5A0',color:'#00E5A0',marginRight:8}} onClick={onMyProjects}>
-            {fr?"Mes projets":en?"My projects":"Mis proyectos"} {">"}
-          </button>}
-          <button className="lm-nav-cta" onClick={onStart}>
-            {fr?"Commencer":en?"Get started":"Comenzar"} {">"}
-          </button>
-        </div>
-      </nav>
-      <section className="lm-hero">
-        <div className="lm-grid"/>
-        <div className="lm-glow"/>
-        <div className="lm-eyebrow">{"✦"} {fr?"Épargne collective":"Savings groups"} {"✦"}</div>
-        <div className="lm-logo">KOB.SOL</div>
-        <div className="lm-tagline">{t.tagline}</div>
-        <div className="lm-sub">{fr?"Tontines · Pools · Cercles d'épargne · Diaspora":en?"Tontines · Pools · Savings circles · Diaspora":"Tontinas · Pools · Círculos de ahorro · Diáspora"}</div>
-        <div className="lm-cta-row">
-          <button className="lm-cta-main" onClick={onStart}>{t.startBtn} {">"}</button>
-          {onDemo&&<button className="lm-cta-demo" onClick={onDemo}>{"▶"} {fr?"Voir la démo":en?"See demo":"Ver demo"}</button>}
-        </div>
-        <div className="lm-stats">
-          <div className="lm-stat"><div className="lm-stat-val">{fmtNum(count.users)}+</div><div className="lm-stat-lbl">{fr?"Utilisateurs actifs":en?"Active users":"Usuarios activos"}</div></div>
-          <div className="lm-stat"><div className="lm-stat-val">{fmtNum(count.cycles)}+</div><div className="lm-stat-lbl">{fr?"Cycles complétés":en?"Completed cycles":"Ciclos completados"}</div></div>
-          <div className="lm-stat"><div className="lm-stat-val">{"$"}{fmtNum(count.amount)}+</div><div className="lm-stat-lbl">{fr?"Distribués":en?"Distributed":"Distribuidos"}</div></div>
-        </div>
-      </section>
-      <div className="lm-divider"/>
-      <div style={{padding:"80px 24px"}}>
-        <div className="lm-section" style={{padding:0}}>
-          <div style={{textAlign:"center"}}>
-            <div className="lm-section-eyebrow">{fr?"Fonctionnalités":en?"Features":"Características"}</div>
-            <div className="lm-section-title">{fr?"Tout ce dont vous avez besoin":en?"Everything you need":"Todo lo que necesitas"}</div>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600;700&display=swap');
+        .lnd-wrap{min-height:100vh;background:#000;overflow-x:hidden;}
+        .lnd-hero{position:relative;width:100vw;height:100vh;overflow:hidden;}
+        .lnd-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .8s ease;}
+        .lnd-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.25) 0%,rgba(0,0,0,.4) 50%,rgba(0,0,0,.8) 100%);}
+        .lnd-nav{position:absolute;top:0;left:0;right:0;z-index:10;padding:24px 40px;display:flex;align-items:center;justify-content:space-between;}
+        .lnd-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;letter-spacing:-1px;}
+        .lnd-nav-r{display:flex;align-items:center;gap:12px;}
+        .lnd-btn-ghost{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:9px 22px;border-radius:50px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;}
+        .lnd-btn-ghost:hover{background:rgba(255,255,255,.15);}
+        .lnd-btn-green{background:#00E5A0;border:none;color:#000;padding:10px 24px;border-radius:50px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;}
+        .lnd-btn-green:hover{background:#00c48a;transform:translateY(-1px);}
+        .lnd-center{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+        .lnd-eyebrow{font-size:11px;color:rgba(255,255,255,.7);letter-spacing:5px;text-transform:uppercase;margin-bottom:20px;}
+        .lnd-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(44px,8vw,90px);color:#fff;line-height:1;letter-spacing:-3px;margin-bottom:20px;}
+        .lnd-title span{color:#00E5A0;}
+        .lnd-sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.75);max-width:520px;line-height:1.75;margin-bottom:44px;font-weight:300;}
+        .lnd-ctas{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:60px;}
+        .lnd-cta-main{background:#00E5A0;border:none;color:#000;font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;padding:17px 44px;border-radius:50px;cursor:pointer;transition:all .3s;}
+        .lnd-cta-main:hover{background:#00c48a;transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,229,160,.4);}
+        .lnd-cta-sec{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;font-family:'Outfit',sans-serif;font-size:15px;padding:15px 32px;border-radius:50px;cursor:pointer;transition:all .25s;}
+        .lnd-cta-sec:hover{background:rgba(255,255,255,.1);}
+        .lnd-stats{display:flex;gap:48px;justify-content:center;flex-wrap:wrap;}
+        .lnd-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:#fff;}
+        .lnd-stat-lbl{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px;}
+        .lnd-dots{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:8px;}
+        .lnd-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);border:none;cursor:pointer;padding:0;transition:all .3s;}
+        .lnd-dot.on{background:#00E5A0;width:24px;border-radius:3px;}
+        .lnd-lbl{position:absolute;bottom:72px;right:40px;z-index:10;font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;}
+        .lnd-body{background:#0a0f1e;padding:80px 24px;}
+        .lnd-section{max-width:1000px;margin:0 auto 80px;}
+        .lnd-s-eyebrow{font-size:11px;color:#00E5A0;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+        .lnd-s-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4vw,40px);color:#fff;margin-bottom:40px;}
+        .lnd-feats{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+        .lnd-feat{background:#0f1729;border:1px solid #1a2840;border-radius:20px;padding:28px;transition:all .25s;}
+        .lnd-feat:hover{border-color:rgba(0,229,160,.3);transform:translateY(-3px);}
+        .lnd-feat-icon{font-size:32px;margin-bottom:14px;}
+        .lnd-feat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-bottom:8px;}
+        .lnd-feat-desc{font-size:13px;color:#5a6a88;line-height:1.7;}
+        .lnd-faq-item{border-bottom:1px solid #1a2840;}
+        .lnd-faq-q{width:100%;background:none;border:none;color:#e8edf5;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:18px 0;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:12px;}
+        .lnd-faq-a{font-size:14px;color:#5a6a88;line-height:1.75;padding-bottom:16px;}
+        .lnd-footer{background:#080d1a;text-align:center;padding:80px 24px;border-top:1px solid #1a2840;}
+        .lnd-footer-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,5vw,48px);color:#fff;margin-bottom:12px;}
+        .lnd-footer-sub{font-size:16px;color:#5a6a88;margin-bottom:36px;}
+        @media(max-width:600px){.lnd-nav{padding:16px 20px;}.lnd-stats{gap:24px;}.lnd-lbl{display:none;}}
+      `}</style>
+
+      <div className="lnd-wrap">
+        {/* HERO */}
+        <div className="lnd-hero">
+          <img className="lnd-img" src={images[currentImg].url} alt={images[currentImg].label} style={{opacity:fade?1:0}}/>
+          <div className="lnd-overlay"/>
+          <div className="lnd-nav">
+            <div className="lnd-logo">KOB.SOL</div>
+            <div className="lnd-nav-r">
+              <LangSwitcher lang={lang} setLang={setLang}/>
+              <ThemeToggle theme={theme} setTheme={setTheme}/>
+              {onMyProjects&&<button className="lnd-btn-ghost" onClick={onMyProjects}>{fr?"Mes projets":en?"My projects":"Mis proyectos"}</button>}
+              <button className="lnd-btn-green" onClick={onStart}>{fr?"Commencer":en?"Get started":"Comenzar"}</button>
+            </div>
           </div>
-          <div className="lm-feats">
-            {feats.map((f,i)=>(
-              <div key={i} className="lm-feat-card">
-                <div className="lm-feat-icon">{f.i}</div>
-                <div className="lm-feat-title">{f.title}</div>
-                <div className="lm-feat-desc">{f.desc}</div>
-              </div>
-            ))}
+          <div className="lnd-center">
+            <div className="lnd-eyebrow">✦ {fr?"Épargne collective":en?"Group savings":"Ahorro colectivo"} ✦</div>
+            <div className="lnd-title">
+              {fr?<>Réalisez vos<br/><span>projets ensemble</span></>:en?<>Achieve your<br/><span>goals together</span></>:<>Logra tus<br/><span>metas juntos</span></>}
+            </div>
+            <div className="lnd-sub">{t.tagline}</div>
+            <div className="lnd-ctas">
+              <button className="lnd-cta-main" onClick={onStart}>{t.startBtn} →</button>
+              {onDemo&&<button className="lnd-cta-sec" onClick={onDemo}>{fr?"Voir la démo":en?"See demo":"Ver demo"}</button>}
+            </div>
+            <div className="lnd-stats">
+              <div><div className="lnd-stat-val">{fmtNum(count.users)}+</div><div className="lnd-stat-lbl">{fr?"Utilisateurs":en?"Users":"Usuarios"}</div></div>
+              <div><div className="lnd-stat-val">{fmtNum(count.cycles)}+</div><div className="lnd-stat-lbl">{fr?"Cycles complétés":en?"Completed cycles":"Ciclos"}</div></div>
+              <div><div className="lnd-stat-val">${fmtNum(count.amount)}+</div><div className="lnd-stat-lbl">{fr?"Distribués":en?"Distributed":"Distribuidos"}</div></div>
+            </div>
+          </div>
+          <div className="lnd-lbl">{images[currentImg].label}</div>
+          <div className="lnd-dots">
+            {images.map((_,i)=><button key={i} className={"lnd-dot"+(currentImg===i?' on':'')} onClick={()=>{setFade(false);setTimeout(()=>{setCurrentImg(i);setFade(true);},300);}}/>)}
           </div>
         </div>
-      </div>
-      <div className="lm-divider"/>
-      <div style={{padding:"80px 24px"}}>
-        <div className="lm-section" style={{padding:0}}>
-          <div style={{textAlign:"center",marginBottom:40}}>
-            <div className="lm-section-eyebrow">{fr?"Comment ça marche":en?"How it works":"Cómo funciona"}</div>
-            <div className="lm-section-title">{fr?"En 4 étapes simples":en?"In 4 simple steps":"En 4 pasos simples"}</div>
+
+        {/* BODY */}
+        <div className="lnd-body">
+          <div className="lnd-section">
+            <div className="lnd-s-eyebrow">{fr?"Fonctionnalités":en?"Features":"Características"}</div>
+            <div className="lnd-s-title">{fr?"Tout ce dont vous avez besoin":en?"Everything you need":"Todo lo que necesitas"}</div>
+            <div className="lnd-feats">
+              {[
+                {i:"🤝",t:fr?"Gestion de groupes":en?"Group management":"Grupos",d:fr?"Tontines, pools et cercles d'épargne.":en?"Tontines, pools and savings circles.":"Tontinas, pools y círculos."},
+                {i:"📅",t:fr?"Cycles automatisés":en?"Automated cycles":"Ciclos automáticos",d:fr?"Calendriers générés automatiquement.":en?"Automatically generated schedules.":"Calendarios generados automáticamente."},
+                {i:"⚠️",t:fr?"Suivi des retards":en?"Late payment tracking":"Seguimiento de atrasos",d:fr?"Signalez et résolvez les retards facilement.":en?"Flag and resolve late payments.":"Reporta y resuelve atrasos fácilmente."},
+                {i:"🌍",t:fr?"195+ pays":en?"195+ countries":"195+ países",d:fr?"Sélecteur de pays pour les groupes diaspora.":en?"Country selector for diaspora groups.":"Selector para grupos diáspora."},
+                {i:"🔒",t:fr?"100% privé":en?"100% private":"100% privado",d:fr?"Vos données restent privées.":en?"Your data stays private.":"Tus datos son privados."},
+                {i:"📊",t:fr?"Statistiques":en?"Statistics":"Estadísticas",d:fr?"Vue globale de tous vos projets.":en?"Overview of all your projects.":"Vista global de todos tus proyectos."},
+              ].map((f,i)=><div key={i} className="lnd-feat"><div className="lnd-feat-icon">{f.i}</div><div className="lnd-feat-title">{f.t}</div><div className="lnd-feat-desc">{f.d}</div></div>)}
+            </div>
           </div>
-          <div className="lm-steps">
-            {steps.map((s,i)=>(
-              <div key={i} className="lm-step">
-                <div className="lm-step-num">{s.n}</div>
-                <div className="lm-step-title">{s.title}</div>
-                <div className="lm-step-desc">{s.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="lm-divider"/>
-      <div style={{padding:"80px 24px"}}>
-        <div className="lm-section" style={{padding:0}}>
-          <div style={{textAlign:"center",marginBottom:40}}>
-            <div className="lm-section-eyebrow">{fr?"Témoignages":en?"Testimonials":"Testimonios"}</div>
-            <div className="lm-section-title">{fr?"Ils nous font confiance":en?"They trust us":"Confían en nosotros"}</div>
-          </div>
-          <div className="lm-testi">
-            {testis.map((ti,i)=>(
-              <div key={i} className="lm-testi-card">
-                <div className="lm-testi-text">{ti.q}</div>
-                <div className="lm-testi-author">
-                  <div className="lm-testi-avatar">{ti.init}</div>
-                  <div><div className="lm-testi-name">{ti.name}</div><div className="lm-testi-role">{ti.role}</div></div>
+
+          <div className="lnd-section" style={{maxWidth:720}}>
+            <div className="lnd-s-eyebrow">FAQ</div>
+            <div className="lnd-s-title">{fr?"Questions fréquentes":en?"Common questions":"Preguntas frecuentes"}</div>
+            <div>
+              {faqs.map((f,i)=>(
+                <div key={i} className="lnd-faq-item">
+                  <button className="lnd-faq-q" onClick={()=>setFaqOpen(faqOpen===i?null:i)}>
+                    <span>{f.q}</span><span>{faqOpen===i?"▲":"▼"}</span>
+                  </button>
+                  {faqOpen===i&&<div className="lnd-faq-a">{f.a}</div>}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="lm-divider"/>
-      <div style={{padding:"80px 24px"}}>
-        <div className="lm-section" style={{padding:0,maxWidth:720}}>
-          <div style={{textAlign:"center",marginBottom:40}}>
-            <div className="lm-section-eyebrow">FAQ</div>
-            <div className="lm-section-title">{fr?"Questions fréquentes":en?"Common questions":"Preguntas frecuentes"}</div>
-          </div>
-          <div className="lm-faq">
-            {faqs.map((f,i)=>(
-              <div key={i} className="lm-faq-item">
-                <button className="lm-faq-q" onClick={()=>setFaqOpen(faqOpen===i?null:i)}>
-                  <span>{f.q}</span><span>{faqOpen===i?"▲":"▼"}</span>
-                </button>
-                {faqOpen===i&&<div className="lm-faq-a">{f.a}</div>}
-              </div>
-            ))}
-          </div>
+
+        {/* FOOTER CTA */}
+        <div className="lnd-footer">
+          <div className="lnd-footer-title">{fr?"Prêt à commencer ?":en?"Ready to start?":"¿Listo para comenzar?"}</div>
+          <div className="lnd-footer-sub">{fr?"Gratuit. Aucune carte bancaire requise.":en?"Free. No credit card required.":"Gratis. Sin tarjeta de crédito."}</div>
+          <button className="lnd-cta-main" onClick={onStart}>{t.startBtn} →</button>
         </div>
-      </div>
-      <div className="lm-footer-cta">
-        <div className="lm-footer-title">
-          {fr?"Prêt à simplifier votre épargne collective ?":en?"Ready to simplify your savings group?":"¿Listo para simplificar tu grupo de ahorro?"}
-        </div>
-        <div className="lm-footer-sub">
-          {fr?"Gratuit pour commencer. Aucune carte bancaire requise.":en?"Free to start. No credit card required.":"Gratis para comenzar. Sin tarjeta de crédito."}
-        </div>
-        <button className="lm-cta-main" onClick={onStart}>{t.startBtn} {">"}</button>
       </div>
     </div>
   );
