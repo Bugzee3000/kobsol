@@ -699,8 +699,9 @@ function AuthScreen({onAuth,onDemo,lang,setLang,theme,setTheme}) {
     {icon:'🌍',title:lang==='fr'?'Multilingue':lang==='en'?'Multilingual':'Multilingüe',desc:lang==='fr'?'Disponible en français, anglais et espagnol.':lang==='en'?'Available in French, English and Spanish.':'Disponible en francés, inglés y español.'},
   ];
   return (
-    <div className="auth-wrap">
+    <div className="auth-wrap" style={{position:'relative',overflow:'hidden'}}>
       <style>{CSS}</style>
+      <div style={{position:'absolute',inset:0,backgroundImage:"url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1600&q=80')",backgroundSize:'cover',backgroundPosition:'center',opacity:.25,zIndex:0}}/>
       <div className="auth-bg-grid"/>
       <div className="auth-left">
         <div style={{position:'absolute',top:24,right:28,zIndex:10,display:'flex',gap:8}}>
