@@ -897,7 +897,14 @@ function Landing({onStart,onDemo,onMyProjects,lang,setLang,theme,setTheme}){
         .lnd-footer{background:#080d1a;text-align:center;padding:80px 24px;border-top:1px solid #1a2840;}
         .lnd-footer-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,5vw,48px);color:#fff;margin-bottom:12px;}
         .lnd-footer-sub{font-size:16px;color:#5a6a88;margin-bottom:36px;}
-        @media(max-width:600px){.lnd-nav{padding:16px 20px;}.lnd-stats{gap:24px;}.lnd-lbl{display:none;}}
+       @media(max-width:600px){
+  .lnd-nav{padding:12px 16px;flex-wrap:wrap;gap:8px;}
+  .lnd-nav-r{gap:6px;}
+  .lnd-btn-ghost{padding:7px 12px;font-size:11px;}
+  .lnd-btn-green{padding:7px 14px;font-size:11px;}
+  .lnd-stats{gap:24px;}
+  .lnd-lbl{display:none;}
+}
       `}</style>
 
       <div className="lnd-wrap">
