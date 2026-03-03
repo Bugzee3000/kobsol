@@ -540,7 +540,7 @@ function TeamDetail({ team, onBack, onUpdate, t, lang, user }) {
   const handleReorder=newMembers=>{onUpdate({...team,members:newMembers},'orderChanged');setShowReorder(false);};
  return (
     <div style={{position:'relative'}}>
-      <div style={{position:'fixed',inset:0,backgroundImage:"url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&q=80')",backgroundSize:'cover',backgroundPosition:'center',opacity:.25,zIndex:-1,pointerEvents:'none'}}/>
+      <div style={{position:'fixed',inset:0,backgroundImage:"url('https://images.unsplash.com/photo-1524863479829-916d8e77f114?w=1600&q=80')",backgroundSize:'cover',backgroundPosition:'center',opacity:.25,zIndex:-1,pointerEvents:'none'}}/>
       {showReorder&&<ReorderModal team={team} onClose={()=>setShowReorder(false)} onSave={handleReorder} t={t} lang={lang}/>}
       <button className="back-btn" onClick={onBack}>← {t.backToTeams}</button>
       <div className="detail-hd">
