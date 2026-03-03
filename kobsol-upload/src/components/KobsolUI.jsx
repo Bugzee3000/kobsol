@@ -1240,7 +1240,7 @@ function AppInner() {
          <TeamDetail team={sel} onBack={()=>setSel(null)} onUpdate={update} t={t} lang={lang} user={user}/>
         ):(
           <>
-            <div className="pt">{t.myTeams}</div>
+           <div style={{position:'fixed',inset:0,backgroundImage:"url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1600&q=80')",backgroundSize:'cover',backgroundPosition:'center',opacity:.25,zIndex:-1,pointerEvents:'none'}}/>
             <div className="ps">{teams.length} projet{teams.length!==1?'s':''}</div>
             {teams.length===0?(
               <div className="empty">
