@@ -1050,10 +1050,7 @@ function InvitePanel({ team, t, user }) {
           onChange={e => { setEmail(e.target.value); setError(''); }}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
-        <select className="fi" style={{ marginBottom: 0, width: 130 }} value={role} onChange={e => setRole(e.target.value)}>
-          <option value="member">Membre</option>
-          <option value="viewer">Lecteur</option>
-        </select>
+       
         <button className="btn btn-p btn-sm" onClick={handleSend} disabled={loading}>
           {loading ? '...' : t.inviteSend}
         </button>
