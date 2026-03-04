@@ -1082,6 +1082,146 @@ function InvitePanel({ team, t, user }) {
     </div>
   );
 }
+function InvitePage({token, onAuth, lang, setLang, theme, setTheme}) {
+  const t = T[lang];
+  const CSS = makeCSS(theme);
+  const [invite, setInvite] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [mode, setMode] = useState('login');
+  const [form, setFormState] = useState({name:'',email:'',password:''});
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authErr, setAuthErr] = useState('');
+  const set = (k,v) => setFormState(f=>({...f,[k]:v}));
+
+  useEffect(()=>{
+    async function loadInvite() {
+      const {data, error} = await supabase
+        .from('invitations')
+        .select('*, projects(name)')
+        .eq('token', token)
+        .eq('status', 'pending')
+        .single();
+      if(error || !data) setError('Invitation invalide ou expirée.');
+      else setInvite(data);
+      setLoading(false);
+    }
+    if(token) loadInvite();
+  },[token]);
+
+  const handleAccept = async() => {
+    if(!form.email || !form.password) return;
+    setAuthLoading(true);
+    try {
+      let userId;
+      if(mode==='register') {
+        const {data, error} = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+          options: {data: {name: form.name}}
+        });
+        if(error) {setAuthErr(error.message); setAuthLoading(false); return;}
+        userId = data.user?.id;
+      } else {
+        const {data, error} = await supabase.auth.signInWithPassword({
+          email: form.email,
+          password: form.password
+        });
+        if(error) {setAuthErr(t.authErrInvalid); setAuthLoading(false); return;}
+        userId = data.user?.id;
+      }
+      // Accepter l'invitation
+      await supabase.from('invitations').update({status:'accepted'}).eq('token', token);
+      // Ajouter accès au projet
+      await supabase.from('project_access').insert({
+        project_id: invite.project_id,
+        user_id: userId,
+        role: invite.role || 'member'
+      });
+      // Mettre à jour la politique SELECT pour inclure project_access
+      const {data:{user:sbUser}} = await supabase.auth.getUser();
+      onAuth({
+        name: sbUser?.user_metadata?.name || form.email.split('@')[0],
+        email: form.email
+      });
+      window.history.replaceState({}, '', '/');
+    } catch(e) {
+      setAuthErr(e.message);
+    }
+    setAuthLoading(false);
+  };
+
+  const C = getC(theme);
+
+  if(loading) return (
+    <div style={{minHeight:'100vh',background:C.bg,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Outfit,sans-serif'}}>
+      <style>{CSS}</style>
+      <div style={{color:C.textMuted}}>Chargement...</div>
+    </div>
+  );
+
+  if(error) return (
+    <div style={{minHeight:'100vh',background:C.bg,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Outfit,sans-serif',padding:24}}>
+      <style>{CSS}</style>
+      <div style={{textAlign:'center'}}>
+        <div style={{fontSize:48,marginBottom:16}}>❌</div>
+        <div style={{fontWeight:700,fontSize:20,marginBottom:8,color:C.text}}>{error}</div>
+        <button className="btn btn-p" onClick={()=>{window.history.replaceState({},'',' /');window.location.reload();}}>Retour à l'accueil</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:'100vh',background:C.bg,display:'flex',alignItems:'center',justifyContent:'center',padding:24,fontFamily:'Outfit,sans-serif',position:'relative',overflow:'hidden'}}>
+      <style>{CSS}</style>
+      <div style={{position:'absolute',inset:0,backgroundImage:"url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1600&q=80')",backgroundSize:'cover',backgroundPosition:'center',opacity:.15}}/>
+      <div style={{position:'absolute',top:20,right:20,display:'flex',gap:8,zIndex:10}}>
+        <LangSwitcher lang={lang} setLang={setLang}/>
+        <ThemeToggle theme={theme} setTheme={setTheme}/>
+      </div>
+      <div style={{width:'100%',maxWidth:440,background:C.bgCard,border:'1px solid '+C.border,borderRadius:24,padding:40,position:'relative',zIndex:2}}>
+        <div style={{textAlign:'center',marginBottom:28}}>
+          <div style={{fontWeight:800,fontSize:28,background:'linear-gradient(135deg,#00E5A0,#F5C842)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:8}}>KOB.SOL</div>
+          <div style={{fontSize:16,fontWeight:600,color:C.text,marginBottom:6}}>
+            🤝 Tu es invité à rejoindre
+          </div>
+          <div style={{fontSize:22,fontWeight:800,color:C.accent,marginBottom:4}}>
+            {invite?.projects?.name}
+          </div>
+          <div style={{fontSize:13,color:C.textMuted}}>
+            Rôle : {invite?.role === 'viewer' ? 'Lecteur' : 'Membre'}
+          </div>
+        </div>
+
+        <div className="auth-tabs" style={{marginBottom:20}}>
+          <button className={"auth-tab"+(mode==='login'?' on':'')} onClick={()=>{setMode('login');setAuthErr('');}}>Connexion</button>
+          <button className={"auth-tab"+(mode==='register'?' on':'')} onClick={()=>{setMode('register');setAuthErr('');}}>Créer un compte</button>
+        </div>
+
+        {authErr && <div className="auth-err">{authErr}</div>}
+
+        {mode==='register' && (
+          <div className="fg">
+            <label className="fl">{t.authName}</label>
+            <input className="fi" placeholder={t.authNamePh} value={form.name} onChange={e=>set('name',e.target.value)}/>
+          </div>
+        )}
+        <div className="fg">
+          <label className="fl">{t.authEmail}</label>
+          <input className="fi" type="email" placeholder="email@exemple.com" value={form.email} onChange={e=>set('email',e.target.value)}/>
+        </div>
+        <div className="fg">
+          <label className="fl">{t.authPassword}</label>
+          <input className="fi" type="password" placeholder="••••••••" value={form.password} onChange={e=>set('password',e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAccept()}/>
+        </div>
+
+        <button className="btn btn-p" style={{width:'100%',justifyContent:'center'}} onClick={handleAccept} disabled={authLoading}>
+          {authLoading ? 'Chargement...' : '✓ Accepter l\'invitation'}
+        </button>
+      </div>
+    </div>
+  );
+}
 function AppInner() {
   const initScreen = window.location.pathname.startsWith('/invite/') ? 'invite' : 'landing';
 const inviteToken = window.location.pathname.startsWith('/invite/') ? window.location.pathname.split('/invite/')[1] : null;
