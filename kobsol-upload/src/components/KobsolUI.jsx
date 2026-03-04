@@ -1083,7 +1083,9 @@ function InvitePanel({ team, t, user }) {
   );
 }
 function AppInner() {
-  const [screen,setScreen]=useState('landing');
+  const initScreen = window.location.pathname.startsWith('/invite/') ? 'invite' : 'landing';
+const inviteToken = window.location.pathname.startsWith('/invite/') ? window.location.pathname.split('/invite/')[1] : null;
+const [screen,setScreen]=useState(initScreen);
   const [lang,setLang]=useState('fr');
   const [theme,setTheme]=useState('dark');
   const [page,setPage]=useState('teams');
