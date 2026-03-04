@@ -335,7 +335,6 @@ function MarkLateModal({member,team,onClose,onConfirm,t}) {
   );
 }
 function LatePaymentsPanel({team,onUpdate,t,lang,user,isOwner}) {
-function LatePaymentsPanel({team,onUpdate,t,lang}) {
   const [markingMember,setMarkingMember]=useState(null);
   const [confirmResolve,setConfirmResolve]=useState(null);
   const lates=team.lates||[];
@@ -361,17 +360,17 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
           <div style={{fontSize:13,color:'#5A6A88',marginTop:2}}>{activeLates.length>0?`${activeLates.length} ${t.latesCount}`:t.allOnTime}</div>
         </div>
       </div>
-      {isOwner&&<div style={{marginBottom:20}}>
-  <div style={{fontSize:12,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:10}}>{t.markLate}</div>
-      <div style={{marginBottom:20}}>
-        <div style={{fontSize:12,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:10}}>{t.markLate}</div>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-          {team.members.map(m=>{
-            const hasLate=activeLates.some(l=>l.memberId===m.id);
-            return <button key={m.id} className={`btn btn-sm ${hasLate?'btn-d':'btn-g'}`} onClick={()=>!hasLate&&setMarkingMember(m)} style={{opacity:hasLate?.6:1,cursor:hasLate?'default':'pointer'}}>{hasLate?'⚠️ ':''}{m.name}</button>;
-          })}
+      {isOwner&&(
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:12,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:10}}>{t.markLate}</div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {team.members.map(m=>{
+              const hasLate=activeLates.some(l=>l.memberId===m.id);
+              return <button key={m.id} className={`btn btn-sm ${hasLate?'btn-d':'btn-g'}`} onClick={()=>!hasLate&&setMarkingMember(m)} style={{opacity:hasLate?.6:1,cursor:hasLate?'default':'pointer'}}>{hasLate?'⚠️ ':''}{m.name}</button>;
+            })}
+          </div>
         </div>
-      </div>
+      )}
       {activeLates.length===0&&resolvedLates.length===0&&(
         <div className="empty" style={{padding:'32px 20px'}}><div className="ei">✅</div><div className="et">{t.noLates}</div><div className="es">{t.noLatesSub}</div></div>
       )}
@@ -388,7 +387,11 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
             </div>
             <span className="late-badge active">{t.lateStatus}</span>
           </div>
-          <div className="late-actions"><button className="btn btn-p btn-sm" onClick={()=>setConfirmResolve(l.id)}>{t.markPaid}</button></div>
+          {isOwner&&(
+            <div className="late-actions">
+              <button className="btn btn-p btn-sm" onClick={()=>setConfirmResolve(l.id)}>{t.markPaid}</button>
+            </div>
+          )}
           {confirmResolve===l.id&&(
             <div className="confirm-box">
               <div className="confirm-box-title">{t.resolveConfirm}</div>
@@ -410,8 +413,9 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
                 <span className="late-badge resolved">{t.resolvedStatus}</span>
               </div>
             </div>
-))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
