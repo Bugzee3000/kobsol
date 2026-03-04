@@ -1267,14 +1267,15 @@ const [screen,setScreen]=useState(initScreen);
   };
   const handleDemo=()=>{setUser({name:'Utilisateur démo',email:'demo@kobsol.com'});setScreen('app');setToast({msg:'Mode démo activé',type:'warn'});};
   const handleSignOut=async()=>{await supabase.auth.signOut();setUser(null);setScreen('landing');setSel(null);setPage('teams');setTeams([]);};
-  const loadProjects=async()=>{
+ const loadProjects=async()=>{
     if(!user) return;
     const {data,error}=await supabase.from('projects').select(`
       *,
       project_members(*, late_payments(*))
-    `).order('created_at',{ascending:false});
+    `)
+    .or(`admin_id.eq.${user.id},id.in.(${await getAccessibleIds()})`)
+    .order('created_at',{ascending:false});
     if(!error && data){
-      // Map DB fields to UI format
       const mapped=data.map(p=>({
         id:p.id,
         name:p.name,
@@ -1295,6 +1296,16 @@ const [screen,setScreen]=useState(initScreen);
       }));
       setTeams(mapped);
     }
+  };
+
+  const getAccessibleIds=async()=>{
+    if(!user?.id) return '';
+    const {data}=await supabase
+      .from('project_access')
+      .select('project_id')
+      .eq('user_id',user.id);
+    if(!data||data.length===0) return "''";
+    return data.map(d=>`${d.project_id}`).join(',');
   };
   useEffect(()=>{if(user) loadProjects();},[user]);
   const create=async(team)=>{
