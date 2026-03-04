@@ -412,7 +412,7 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
             </div>
 ))}
       </div>
-    }
+    </div>
   );
 }
 function ReorderModal({team,onClose,onSave,t,lang}) {
