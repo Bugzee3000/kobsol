@@ -1218,7 +1218,7 @@ const [screen,setScreen]=useState(initScreen);
     }
     setToast({msg:key==='lateMarked'?t.lateMarked:key==='lateResolved'?t.lateResolved:t.orderChanged,type:key==='lateMarked'?'warn':''});
   };
-
+if(screen==='invite') return <><style>{CSS}</style><InvitePage token={inviteToken} onAuth={handleAuth} onDemo={handleDemo} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
   if(screen==='landing') return <><style>{CSS}</style><Landing onStart={()=>setScreen('auth')} onMyProjects={user?()=>setScreen('app'):null} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
   if(screen==='auth') return <><style>{CSS}</style><AuthScreen onAuth={handleAuth} onDemo={handleDemo} lang={lang} setLang={setLang} theme={theme} setTheme={setTheme}/></>;
   return (
