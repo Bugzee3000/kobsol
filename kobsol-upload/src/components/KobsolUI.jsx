@@ -411,10 +411,9 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
               </div>
             </div>
           ))}
-        </div>
-      )}
-    </div>
-  );
+  </div>
+    );
+}
 }
 function ReorderModal({team,onClose,onSave,t,lang}) {
   const [order,setOrder]=useState([...team.members]);
