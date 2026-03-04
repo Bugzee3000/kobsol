@@ -1164,7 +1164,7 @@ function AppInner() {
       start_date:team.startDate,
       end_date:team.endDate||null,
       country:team.country||null,
-      admin_id:user?.id||null,
+     admin_id:user?.id||'00000000-0000-0000-0000-000000000000',
     }).select().single();
     if(projErr){setToast({msg:'Erreur: '+projErr.message,type:'danger'});return;}
     // Save members
