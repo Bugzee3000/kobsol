@@ -548,7 +548,7 @@ function TeamDetail({ team, onBack, onUpdate, t, lang, user }) {
           <h2 style={{fontWeight:800,fontSize:24}}>{pl?.flag} {team.name}</h2>
           <div style={{color:'#5A6A88',fontSize:13,marginTop:4}}>{pl?.name} · {t[team.period]} · {t.startDate}: {fdate(team.startDate,lang)}</div>
         </div>
-        <button className="btn btn-g btn-sm" onClick={()=>setShowReorder(true)}>{t.reorderBtn}</button>
+      {team.admin_id===user?.id&&<button className="btn btn-g btn-sm" onClick={()=>setShowReorder(true)}>{t.reorderBtn}</button>}
       </div>
       <div className="detail-tabs">{tabs.map(tb=><button key={tb.id} className={`detail-tab${tab===tb.id?' on':''}`} onClick={()=>setTab(tb.id)}>{tb.label}</button>)}</div>
       {tab==='overview'&&<div>
