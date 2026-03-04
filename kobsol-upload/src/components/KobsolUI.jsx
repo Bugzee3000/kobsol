@@ -334,6 +334,7 @@ function MarkLateModal({member,team,onClose,onConfirm,t}) {
     </div>
   );
 }
+function LatePaymentsPanel({team,onUpdate,t,lang,user,isOwner}) {
 function LatePaymentsPanel({team,onUpdate,t,lang}) {
   const [markingMember,setMarkingMember]=useState(null);
   const [confirmResolve,setConfirmResolve]=useState(null);
