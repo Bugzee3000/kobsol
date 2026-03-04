@@ -410,10 +410,10 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
                 <span className="late-badge resolved">{t.resolvedStatus}</span>
               </div>
             </div>
-          ))}
-  </div>
-    );
-}
+))}
+      </div>
+    }
+  );
 }
 function ReorderModal({team,onClose,onSave,t,lang}) {
   const [order,setOrder]=useState([...team.members]);
