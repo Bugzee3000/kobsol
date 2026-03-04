@@ -1156,7 +1156,14 @@ function AppInner() {
   };
   useEffect(()=>{if(user) loadProjects();},[user]);
   const create=async(team)=>{
-    // Save to Supabase
+    if(!user?.id){
+      // Mode démo — stockage local uniquement
+      const newTeam={id:genId(),...team,amountPerPerson:Number(team.amountPerPerson),members:team.members,lates:[],createdAt:new Date().toISOString()};
+      setTeams(p=>[newTeam,...p]);
+      setShowC(false);
+      setToast({msg:t.projectCreated,type:''});
+      return;
+    }
     const {data:proj,error:projErr}=await supabase.from('projects').insert({
       name:team.name,
       amount_per_person:team.amountPerPerson,
@@ -1164,10 +1171,9 @@ function AppInner() {
       start_date:team.startDate,
       end_date:team.endDate||null,
       country:team.country||null,
-     admin_id:user?.id||'00000000-0000-0000-0000-000000000000',
+      admin_id:user.id,
     }).select().single();
     if(projErr){setToast({msg:'Erreur: '+projErr.message,type:'danger'});return;}
-    // Save members
     if(team.members?.length){
       const membersToInsert=team.members.map((m,i)=>({
         project_id:proj.id,name:m.name,email:m.email||null,order_index:i,status:'active'
