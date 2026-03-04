@@ -361,6 +361,8 @@ function LatePaymentsPanel({team,onUpdate,t,lang}) {
           <div style={{fontSize:13,color:'#5A6A88',marginTop:2}}>{activeLates.length>0?`${activeLates.length} ${t.latesCount}`:t.allOnTime}</div>
         </div>
       </div>
+      {isOwner&&<div style={{marginBottom:20}}>
+  <div style={{fontSize:12,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:10}}>{t.markLate}</div>
       <div style={{marginBottom:20}}>
         <div style={{fontSize:12,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:10}}>{t.markLate}</div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
