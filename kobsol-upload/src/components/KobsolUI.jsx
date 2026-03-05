@@ -1291,9 +1291,9 @@ const [screen,setScreen]=useState(initScreen);
         admin_id:p.admin_id,
         members:(p.project_members||[]).sort((a,b)=>a.order_index-b.order_index).map(m=>({
           id:m.id,name:m.name,email:m.email,order_index:m.order_index,
-          lates:(m.late_payments||[]).map(l=>({
-            id:l.id,since:l.since,dueDate:l.due_date,reason:l.reason,resolved:l.resolved,resolvedAt:l.resolved_at
-          }))
+         lates:(m.late_payments||[]).map(l=>({
+  id:l.id,memberId:m.id,since:l.since,dueDate:l.due_date,reason:l.reason,resolved:l.resolved,resolvedAt:l.resolved_at
+}))
         })),
         lates:(p.project_members||[]).flatMap(m=>(m.late_payments||[]).filter(l=>!l.resolved))
       }));
