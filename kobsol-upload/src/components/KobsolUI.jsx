@@ -1295,7 +1295,7 @@ const [screen,setScreen]=useState(initScreen);
   id:l.id,memberId:m.id,since:l.since,dueDate:l.due_date,reason:l.reason,resolved:l.resolved,resolvedAt:l.resolved_at
 }))
         })),
-        lates:(p.project_members||[]).flatMap(m=>(m.late_payments||[]).filter(l=>!l.resolved))
+       lates:(p.project_members||[]).flatMap(m=>(m.late_payments||[]).filter(l=>!l.resolved).map(l=>({...l,memberId:m.id})))
       }));
       setTeams(mapped);
     }
