@@ -807,7 +807,7 @@ useEffect(()=>{
         </div>
       </div>
    </div>
-      </div>
+    
       {isSuperAdmin&&(
           <div style={{...card,border:'1px solid rgba(0,229,160,.3)',marginTop:24}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>
