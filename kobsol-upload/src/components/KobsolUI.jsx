@@ -829,10 +829,10 @@ useEffect(()=>{
                     <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
                     <div style={{fontSize:11,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:4}}>{s.label}</div>
                     <div style={{fontSize:22,fontWeight:800,color:'#E8EDF5'}}>{s.val}</div>
-                  </div>
-               ))}
-</div>
-          
+            </div>
+        ))
+        :null}
+    </div>
             ):null}
     </div>
   ); // 
