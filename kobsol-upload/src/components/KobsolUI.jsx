@@ -836,8 +836,8 @@ useEffect(()=>{
 </div>
         )}
       </div>
-);
-} //
+);//
+} 
 function MobileNav({page,setPage,setSel,onNew,t,showFab}) {
   const tabs=[{id:'teams',icon:'🏠',label:t.myTeams},{id:'global',icon:'📊',label:t.globalView},{id:'profile',icon:'👤',label:t.profile}];
   return (
