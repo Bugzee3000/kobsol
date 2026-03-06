@@ -755,6 +755,19 @@ function ProfilePage({user,setUser,onSignOut,t,lang,setLang,theme,setTheme}) {
   const ini=n=>n?n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2):'?';
   const save=()=>{if(!name.trim()) return;setUser(u=>({...u,name:name.trim()}));setEditing(false);setSaved(true);setTimeout(()=>setSaved(false),2500);};
   const card={background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:16,padding:22,marginBottom:12};
+  const isSuperAdmin = user?.email === 'jrdivers@outlook.com';
+const [adminStats, setAdminStats] = useState(null);
+const [loadingStats, setLoadingStats] = useState(false);
+
+useEffect(()=>{
+  if(!isSuperAdmin) return;
+  setLoadingStats(true);
+  supabase.from('admin_dashboard').select('*').single()
+    .then(({data})=>{
+      setAdminStats(data);
+      setLoadingStats(false);
+    });
+},[isSuperAdmin]);
   return (
     <div style={{maxWidth:620,margin:'0 auto',padding:'0 8px'}}>
       <div className="pt">{t.profile}</div>
