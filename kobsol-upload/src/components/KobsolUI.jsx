@@ -806,37 +806,35 @@ useEffect(()=>{
           <button className="btn btn-d btn-sm" onClick={()=>alert(t.profileDeleteWarning)}>{t.profileDeleteAccount}</button>
         </div>
 
-      {isSuperAdmin&&(
-          <div style={{...card,border:'1px solid rgba(0,229,160,.3)',marginTop:24}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>
-              <span style={{fontSize:20}}>⚡</span>
-              <div style={{fontWeight:700,fontSize:16,color:'#00E5A0'}}>Super Admin — Stats KOB.SOL</div>
-            </div>
-            {loadingStats?(
-              <div style={{color:'#5A6A88',fontSize:13}}>Chargement des stats...</div>
-            ):adminStats?(
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:12}}>
-                {[
-                  {icon:'📁',label:'Projets total',val:adminStats.total_projects},
-                  {icon:'👥',label:'Membres total',val:adminStats.total_members},
-                  {icon:'👤',label:'Utilisateurs',val:adminStats.total_users},
-                  {icon:'🆕',label:'Nouveaux (7j)',val:adminStats.new_users_7days},
-                  {icon:'⚠️',label:'Retards actifs',val:adminStats.active_lates},
-                  {icon:'📊',label:'Retards total',val:adminStats.total_lates},
-                  {icon:'💰',label:'Valeur totale',val:'$'+Number(adminStats.total_to_distribute||0).toLocaleString()},
-                ].map((s,i)=>(
-                  <div key={i} style={{background:'#080D1A',border:'1px solid #1A2840',borderRadius:12,padding:'14px 16px'}}>
-                    <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
-                    <div style={{fontSize:11,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:4}}>{s.label}</div>
-                    <div style={{fontSize:22,fontWeight:800,color:'#E8EDF5'}}>{s.val}</div>
-</div>
-            ))}
-        </div>
-        ):null}
+{isSuperAdmin&&(
+  <div style={{...card,border:'1px solid rgba(0,229,160,.3)',marginTop:24}}>
+    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>
+      <span style={{fontSize:20}}>⚡</span>
+      <div style={{fontWeight:700,fontSize:16,color:'#00E5A0'}}>Super Admin — Stats KOB.SOL</div>
     </div>
+    {loadingStats?(
+      <div style={{color:'#5A6A88',fontSize:13}}>Chargement des stats...</div>
+    ):adminStats?(
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:12}}>
+        {[
+          {icon:'📁',label:'Projets total',val:adminStats.total_projects},
+          {icon:'👥',label:'Membres total',val:adminStats.total_members},
+          {icon:'👤',label:'Utilisateurs',val:adminStats.total_users},
+          {icon:'🆕',label:'Nouveaux (7j)',val:adminStats.new_users_7days},
+          {icon:'⚠️',label:'Retards actifs',val:adminStats.active_lates},
+          {icon:'📊',label:'Retards total',val:adminStats.total_lates},
+          {icon:'💰',label:'Valeur totale',val:'$'+Number(adminStats.total_to_distribute||0).toLocaleString()},
+        ].map((s,i)=>(
+          <div key={i} style={{background:'#080D1A',border:'1px solid #1A2840',borderRadius:12,padding:'14px 16px'}}>
+            <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
+            <div style={{fontSize:11,color:'#5A6A88',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:4}}>{s.label}</div>
+            <div style={{fontSize:22,fontWeight:800,color:'#E8EDF5'}}>{s.val}</div>
+          </div>
+        ))}
+      </div>
+    ):null}
+  </div>
 )}
-    ); //
-        } 
 function MobileNav({page,setPage,setSel,onNew,t,showFab}) {
   const tabs=[{id:'teams',icon:'🏠',label:t.myTeams},{id:'global',icon:'📊',label:t.globalView},{id:'profile',icon:'👤',label:t.profile}];
   return (
